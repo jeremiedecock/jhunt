@@ -32,22 +32,30 @@ import datetime
 import fcntl  # TODO: use GtkApplication instead
 import json
 import sys
+import webbrowser
 
 JSON_FILENAME = "job_adverts.json"
 
+LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
+
+# CONFIG
+
 TREE_VIEW_COLUMN_LABEL_LIST = ["Category", "Organization", "Note", "Date", "Url", "Title"]
+ADVERTS_SRC_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Name", "Category", "Last visit", "Today status"]
 
 CATEGORY_LIST = ["Entrprise", "IR/IE", "PostDoc"]
 NOTE_LIST = ["0", "1", "2", "3", "4", "5"]
 
-JOB_ADVERT_WEB_SITES = ['<a href="http://www.inria.fr/institut/recrutement-metiers/offres">Inria</a>',
-                        '<a href="https://flowers.inria.fr/jobs/">Inria - Flowers team</a>',
-                        '<a href="http://www.ademe.fr/lademe-recrute">Ademe</a>',
-                        '<a href="http://moorea.cea.fr/Web/ListeDoss.aspx">CEA</a>',
-                        '<a href="https://jobs.github.com/positions">GitHub Jobs</a>',
-                        '<a href="http://careers.stackoverflow.com/jobs">Stackoverflow Careers</a>']
+# {"url": {"label": "", "category": ""}, ...}
+JOB_ADVERT_WEB_SITES = {
+        "http://www.inria.fr/institut/recrutement-metiers/offres": {"label": "Inria", "category": "IR/IE"},
+        "https://flowers.inria.fr/jobs/":          {"label": "Inria - Flowers team", "category": "IR/IE"},
+        "http://www.ademe.fr/lademe-recrute":      {"label": "Ademe", "category": "IR/IE"},
+        "http://moorea.cea.fr/Web/ListeDoss.aspx": {"label": "CEA",   "category": "IR/IE"},
+        "https://jobs.github.com/positions":       {"label": "GitHub Jobs", "category": "Entrprise"},
+        "http://careers.stackoverflow.com/jobs":   {"label": "Stackoverflow Careers", "category": "Entrprise"}
+    }
 
-LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
 
 class MainWindow(gtk.Window):
 
@@ -61,6 +69,26 @@ class MainWindow(gtk.Window):
             fd.close()
         except:
             pass
+
+        # TODO
+        # {"url": [{"date": "", "status": ""}, ...], ...}
+        self.json_advert_src_database = {
+                "url1": [
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"}
+                    ],
+                "url2": [
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"}
+                    ],
+                "url3": [
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"},
+                        {"date": "", "status": "nc"}
+                    ]
+            }
 
         # Build the main window
         gtk.Window.__init__(self, title="Job advert logger")
@@ -179,9 +207,65 @@ class MainWindow(gtk.Window):
         search_container = gtk.Box(orientation = gtk.Orientation.VERTICAL, spacing=6)
         search_container.set_border_width(18)
 
-        web_sites_label = gtk.Label()
-        web_sites_label.set_markup("\n".join(JOB_ADVERT_WEB_SITES))
-        search_container.pack_start(web_sites_label, expand=True, fill=True, padding=0)
+        # Creating the ListStore model
+        self.adverts_src_liststore = gtk.ListStore(str, str, str, int, str)
+        for url, web_site_dict in JOB_ADVERT_WEB_SITES.items():
+            label = web_site_dict["label"]
+            category = web_site_dict["category"]
+
+            # self.json_advert_src_database.items()
+            #status = int(self.json_advert_src_database[url].adverts_src_dict["status"])
+            #today_status = self.json_advert_src_database[url][-1]["today_status"]
+            num_days_since_last_visit = 0
+            today_status = "nc"
+
+            self.adverts_src_liststore.append([url, label, category, num_days_since_last_visit, today_status])
+
+        # Creating the treeview, making it use the filter as a model, and
+        # adding the columns
+        adverts_src_treeview = gtk.TreeView(self.adverts_src_liststore)
+        for column_index, column_title in enumerate(ADVERTS_SRC_TREE_VIEW_COLUMN_LABEL_LIST):
+            renderer = gtk.CellRendererText()
+
+            #if column_title == "Url":
+            #    #renderer.set_markup("\n".join(JOB_ADVERT_WEB_SITES))
+            #    renderer.set_property("ellipsize", pango.EllipsizeMode.END)
+            #    renderer.set_property("ellipsize-set", True)
+
+            column = gtk.TreeViewColumn(column_title, renderer, text=column_index)
+            column.set_resizable(True)       # Let the column be resizable
+
+            if column_title == "Url":
+                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltips and webbrowser redirection)
+
+            if column_title == "Name":
+                column.set_sort_column_id(1)
+            elif column_title == "Category":
+                column.set_sort_column_id(2)
+            elif column_title == "Last visit":
+                column.set_sort_column_id(3)
+            elif column_title == "Today status":
+                column.set_sort_column_id(4)
+
+            adverts_src_treeview.append_column(column)
+
+        adverts_src_treeview.set_tooltip_column(0)  # set the tooltips
+
+        # Connect to the "row-activated" signal (double click)
+        adverts_src_treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
+
+        #select = adverts_src_treeview.get_selection()
+        #select.connect("changed", self.treeview_selection_changed_cb)
+
+        # Scrolled window
+        adverts_src_scrolled_window = gtk.ScrolledWindow()
+        adverts_src_scrolled_window.set_border_width(18)
+        adverts_src_scrolled_window.set_shadow_type(gtk.ShadowType.IN)
+        adverts_src_scrolled_window.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
+        adverts_src_scrolled_window.add(adverts_src_treeview)
+
+        search_container.pack_start(adverts_src_scrolled_window, expand=True, fill=True, padding=0)
+
 
         ###################################
 
@@ -488,6 +572,12 @@ class MainWindow(gtk.Window):
             self.edit_pros_textview.get_buffer().set_text(pros)
             self.edit_cons_textview.get_buffer().set_text(cons)
             self.edit_desc_textview.get_buffer().set_text(desc)
+
+    def adverts_src_treeview_double_click_cb(self, tree_view, tree_path, tree_view_column):
+        """Inspired from http://stackoverflow.com/questions/17109634/hyperlink-in-cellrenderertext-markup"""
+        model = tree_view.get_model()
+        url = model[tree_path][0]
+        webbrowser.open(url)
 
 
 def main():
