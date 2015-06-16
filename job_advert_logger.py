@@ -62,7 +62,7 @@ class MainWindow(gtk.Window):
     def __init__(self):
 
         # Load the JSON database
-        self.json_database = {}
+        self.json_database = {"job_adverts": {}, "job_searchs": {}}
         try:
             fd = open(JSON_FILENAME, "r")
             self.json_database = json.load(fd)
@@ -129,7 +129,7 @@ class MainWindow(gtk.Window):
 
         # Creating the ListStore model
         self.liststore = gtk.ListStore(str, str, int, str, str, str)
-        for url, job_advert_dict in self.json_database.items():
+        for url, job_advert_dict in self.json_database["job_adverts"].items():
             category = job_advert_dict["category"]
             organization = job_advert_dict["organization"]
             note = int(job_advert_dict["note"])
@@ -467,7 +467,7 @@ class MainWindow(gtk.Window):
 
         if len(url) == 0:
             error_msg_list.append("You must enter an url.")
-        elif url in self.json_database:
+        elif url in self.json_database["job_adverts"]:
             error_msg_list.append("This job advert already exists in the database.")
 
         if note is None:
@@ -492,7 +492,7 @@ class MainWindow(gtk.Window):
                                "desc": desc}
 
             # Save the job advert in the database
-            self.json_database[url] = job_advert_dict
+            self.json_database["job_adverts"][url] = job_advert_dict
 
             # Save the job advert in the JSON file
             with open(JSON_FILENAME, "w") as fd:
@@ -555,14 +555,14 @@ class MainWindow(gtk.Window):
             self.edit_cons_textview.get_buffer().set_text("")
             self.edit_desc_textview.get_buffer().set_text("")
         else:
-            category = self.json_database[url]["category"]
-            organization = self.json_database[url]["organization"]
-            note = self.json_database[url]["note"]
-            title = self.json_database[url]["title"]
-            #date = self.json_database[url]["date"]
-            pros = self.json_database[url]["pros"]
-            cons = self.json_database[url]["cons"]
-            desc = self.json_database[url]["desc"]
+            category = self.json_database["job_adverts"][url]["category"]
+            organization = self.json_database["job_adverts"][url]["organization"]
+            note = self.json_database["job_adverts"][url]["note"]
+            title = self.json_database["job_adverts"][url]["title"]
+            #date = self.json_database["job_adverts"][url]["date"]
+            pros = self.json_database["job_adverts"][url]["pros"]
+            cons = self.json_database["job_adverts"][url]["cons"]
+            desc = self.json_database["job_adverts"][url]["desc"]
 
             self.edit_url_entry.set_text(url)
             #self.edit_category_combobox.set_active(...) # TODO!!!
