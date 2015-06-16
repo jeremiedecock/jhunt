@@ -40,8 +40,8 @@ LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
 
 # CONFIG
 
-TREE_VIEW_COLUMN_LABEL_LIST = ["Category", "Organization", "Note", "Date", "Url", "Title"]
-ADVERTS_SRC_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Name", "Category", "Last visit", "Today status"]
+TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Category", "Organization", "Note", "Date", "Title"]
+JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Name", "Category", "Last visit", "Today status"]
 
 CATEGORY_LIST = ["Entrprise", "IR/IE", "PostDoc"]
 NOTE_LIST = ["0", "1", "2", "3", "4", "5"]
@@ -128,7 +128,7 @@ class MainWindow(gtk.Window):
         paned_container.set_position(400)
 
         # Creating the ListStore model
-        self.liststore = gtk.ListStore(str, str, int, str, str, str)
+        self.liststore = gtk.ListStore(str, str, str, int, str, str)
         for url, job_advert_dict in self.json_database["job_adverts"].items():
             category = job_advert_dict["category"]
             organization = job_advert_dict["organization"]
@@ -136,7 +136,7 @@ class MainWindow(gtk.Window):
             title = job_advert_dict["title"]
             date = job_advert_dict["date"]
 
-            self.liststore.append([category, organization, note, date, url, title])
+            self.liststore.append([url, category, organization, note, date, title])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -144,30 +144,40 @@ class MainWindow(gtk.Window):
         for column_index, column_title in enumerate(TREE_VIEW_COLUMN_LABEL_LIST):
             renderer = gtk.CellRendererText()
 
-            if column_title in ("Url", "Title"):
+            column = gtk.TreeViewColumn(column_title, renderer, text=column_index)
+
+            column.set_resizable(True)       # Let the column be resizable
+
+            if column_title == "Title":
                 renderer.set_property("ellipsize", pango.EllipsizeMode.END)
                 renderer.set_property("ellipsize-set", True)
 
-            column = gtk.TreeViewColumn(column_title, renderer, text=column_index)
-            column.set_resizable(True)       # Let the column be resizable
+            if column_title == "Url":
+                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltips and webbrowser redirection)
 
-            if column_title == "Category":
+            if column_title == "Url":
                 column.set_sort_column_id(0)
-            elif column_title == "Organization":
+            elif column_title == "Category":
                 column.set_sort_column_id(1)
-            elif column_title == "Note":
+            elif column_title == "Organization":
                 column.set_sort_column_id(2)
-            elif column_title == "Date":
+            elif column_title == "Note":
                 column.set_sort_column_id(3)
-            elif column_title == "Url":
+            elif column_title == "Date":
                 column.set_sort_column_id(4)
             elif column_title == "Title":
                 column.set_sort_column_id(5)
 
             treeview.append_column(column)
 
+        treeview.set_tooltip_column(0)  # set the tooltips
+
+        # Connect to the "changed" signal (simple click)
         select = treeview.get_selection()
         select.connect("changed", self.treeview_selection_changed_cb)
+
+        # Connect to the "row-activated" signal (double click)
+        treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
 
         # Scrolled window
         scrolled_window = gtk.ScrolledWindow()
@@ -202,13 +212,13 @@ class MainWindow(gtk.Window):
         paned_container.add1(scrolled_window)
         paned_container.add2(edit_container)
 
-        # Search container ####################################################
+        # Job search container ################################################
 
         search_container = gtk.Box(orientation = gtk.Orientation.VERTICAL, spacing=6)
         search_container.set_border_width(18)
 
         # Creating the ListStore model
-        self.adverts_src_liststore = gtk.ListStore(str, str, str, int, str)
+        self.job_search_liststore = gtk.ListStore(str, str, str, int, str)
         for url, web_site_dict in JOB_ADVERT_WEB_SITES.items():
             label = web_site_dict["label"]
             category = web_site_dict["category"]
@@ -219,20 +229,16 @@ class MainWindow(gtk.Window):
             num_days_since_last_visit = 0
             today_status = "nc"
 
-            self.adverts_src_liststore.append([url, label, category, num_days_since_last_visit, today_status])
+            self.job_search_liststore.append([url, label, category, num_days_since_last_visit, today_status])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
-        adverts_src_treeview = gtk.TreeView(self.adverts_src_liststore)
-        for column_index, column_title in enumerate(ADVERTS_SRC_TREE_VIEW_COLUMN_LABEL_LIST):
+        job_search_treeview = gtk.TreeView(self.job_search_liststore)
+        for column_index, column_title in enumerate(JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST):
             renderer = gtk.CellRendererText()
 
-            #if column_title == "Url":
-            #    #renderer.set_markup("\n".join(JOB_ADVERT_WEB_SITES))
-            #    renderer.set_property("ellipsize", pango.EllipsizeMode.END)
-            #    renderer.set_property("ellipsize-set", True)
-
             column = gtk.TreeViewColumn(column_title, renderer, text=column_index)
+
             column.set_resizable(True)       # Let the column be resizable
 
             if column_title == "Url":
@@ -247,14 +253,14 @@ class MainWindow(gtk.Window):
             elif column_title == "Today status":
                 column.set_sort_column_id(4)
 
-            adverts_src_treeview.append_column(column)
+            job_search_treeview.append_column(column)
 
-        adverts_src_treeview.set_tooltip_column(0)  # set the tooltips
+        job_search_treeview.set_tooltip_column(0)  # set the tooltips
 
         # Connect to the "row-activated" signal (double click)
-        adverts_src_treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
+        job_search_treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
 
-        #select = adverts_src_treeview.get_selection()
+        #select = job_search_treeview.get_selection()
         #select.connect("changed", self.treeview_selection_changed_cb)
 
         # Scrolled window
@@ -262,7 +268,7 @@ class MainWindow(gtk.Window):
         adverts_src_scrolled_window.set_border_width(18)
         adverts_src_scrolled_window.set_shadow_type(gtk.ShadowType.IN)
         adverts_src_scrolled_window.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
-        adverts_src_scrolled_window.add(adverts_src_treeview)
+        adverts_src_scrolled_window.add(job_search_treeview)
 
         search_container.pack_start(adverts_src_scrolled_window, expand=True, fill=True, padding=0)
 
@@ -499,7 +505,7 @@ class MainWindow(gtk.Window):
                 json.dump(self.json_database, fd, sort_keys=True, indent=4)
 
             # Update the GtkListStore (TODO: redundant with the previous JSON data structure)
-            self.liststore.append([category, organization, int(note), date, url, title])
+            self.liststore.append([url, category, organization, int(note), date, title])
 
             # Clear all entries (except "category_entry")
             self.clear_job_adverts_add_form_cb()
@@ -528,7 +534,7 @@ class MainWindow(gtk.Window):
     def treeview_selection_changed_cb(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter != None:
-            url = self.liststore[treeiter][4]
+            url = self.liststore[treeiter][0]
             self.reset_job_adverts_edit_form_cb(widget=None, url=url)
 
 
