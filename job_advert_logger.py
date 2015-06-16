@@ -209,36 +209,21 @@ class MainWindow(gtk.Window):
         cons_textview = widget_dict["cons_widget"]
         desc_textview = widget_dict["desc_widget"]
 
-        add_box_container = gtk.Box(orientation = gtk.Orientation.VERTICAL, spacing=6)
-        add_box_container.set_border_width(18)
-
         # Category
         category_label = gtk.Label(label="Category")
         category_combobox.set_entry_text_column(0)
         for category in CATEGORY_LIST:
             category_combobox.append_text(category)
         category_combobox.set_active(0)
-        category_box_container = gtk.Box(spacing=12)
-        category_box_container.pack_start(category_label, expand=False, fill=True, padding=0)
-        category_box_container.pack_start(category_combobox, expand=True, fill=True, padding=0)
 
         # Organization
         organization_label = gtk.Label(label="Organization")
-        organization_box_container = gtk.Box(spacing=12)
-        organization_box_container.pack_start(organization_label, expand=False, fill=True, padding=0)
-        organization_box_container.pack_start(organization_entry, expand=True, fill=True, padding=0)
 
         # URL
         url_label = gtk.Label(label="Url")
-        url_box_container = gtk.Box(spacing=12)
-        url_box_container.pack_start(url_label, expand=False, fill=True, padding=0)
-        url_box_container.pack_start(url_entry, expand=True, fill=True, padding=0)
 
         # Title
         title_label = gtk.Label(label="Title")
-        title_box_container = gtk.Box(spacing=12)
-        title_box_container.pack_start(title_label, expand=False, fill=True, padding=0)
-        title_box_container.pack_start(title_entry, expand=True, fill=True, padding=0)
 
         # Note
         note_label = gtk.Label(label="Note")
@@ -247,13 +232,9 @@ class MainWindow(gtk.Window):
             note_combobox.append_text(note)
         note_combobox.set_active(len(NOTE_LIST)-1)
         #note_entry.set_max_length(1)
-        note_box_container = gtk.Box(spacing=12)
-        note_box_container.pack_start(note_label, expand=False, fill=True, padding=0)
-        note_box_container.pack_start(note_combobox, expand=True, fill=True, padding=0)
 
         # Pros
         pros_label = gtk.Label(label="Pros")
-        pros_label.set_alignment(0, 0.5) # Align left
 
         pros_textview.set_wrap_mode(gtk.WrapMode.WORD)
 
@@ -265,7 +246,6 @@ class MainWindow(gtk.Window):
 
         # Cons
         cons_label = gtk.Label(label="Cons")
-        cons_label.set_alignment(0, 0.5) # Align left
 
         cons_textview.set_wrap_mode(gtk.WrapMode.WORD)
 
@@ -277,7 +257,6 @@ class MainWindow(gtk.Window):
 
         # Description
         desc_label = gtk.Label(label="Description")
-        desc_label.set_alignment(0, 0.5) # Align left
 
         desc_textview.set_wrap_mode(gtk.WrapMode.WORD)
 
@@ -290,27 +269,81 @@ class MainWindow(gtk.Window):
         # Buttons
         add_button = gtk.Button(label="Save")
         add_button.connect("clicked", save_function)
+
         cancel_button = gtk.Button(label="Cancel")
         cancel_button.connect("clicked", clear_function)
-        btn_box_container = gtk.Box(spacing=12)
-        btn_box_container.pack_start(add_button, expand=True, fill=True, padding=0)
-        btn_box_container.pack_start(cancel_button, expand=True, fill=True, padding=0)
+
+        # The grid container
+        grid = gtk.Grid()
+        grid.set_column_homogeneous(False)
+        grid.set_row_homogeneous(False)
+        grid.set_column_spacing(12)
+        grid.set_row_spacing(6)
+        grid.set_border_width(18)
+
+        # Set hexpand, vexpand, halign, valign
+        # See https://developer.gnome.org/gtk3/stable/ch29s02.html
+        category_combobox.set_hexpand(True)
+
+        organization_entry.set_hexpand(True)
+
+        url_entry.set_hexpand(True)
+
+        note_combobox.set_hexpand(True)
+
+        title_entry.set_hexpand(True)
+
+        pros_scrolled_window.set_hexpand(True)
+        pros_scrolled_window.set_vexpand(True)
+
+        cons_scrolled_window.set_hexpand(True)
+        cons_scrolled_window.set_vexpand(True)
+        
+        desc_scrolled_window.set_hexpand(True)
+        desc_scrolled_window.set_vexpand(True)
+
+        # Align labels to the right
+        # See https://developer.gnome.org/gtk3/stable/ch29s02.html
+        category_label.set_halign(gtk.Align.END)
+        organization_label.set_halign(gtk.Align.END)
+        url_label.set_halign(gtk.Align.END)
+        note_label.set_halign(gtk.Align.END)
+        title_label.set_halign(gtk.Align.END)
+
+        # Align labels to the left
+        # See https://developer.gnome.org/gtk3/stable/ch29s02.html
+        pros_label.set_halign(gtk.Align.START)
+        cons_label.set_halign(gtk.Align.START)
+        desc_label.set_halign(gtk.Align.START)
 
         # Add the widgets to the container
-        add_box_container.pack_start(category_box_container, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(organization_box_container, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(url_box_container, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(title_box_container, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(note_box_container, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(pros_label, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(pros_scrolled_window, expand=True, fill=True, padding=0)
-        add_box_container.pack_start(cons_label, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(cons_scrolled_window, expand=True, fill=True, padding=0)
-        add_box_container.pack_start(desc_label, expand=False, fill=True, padding=0)
-        add_box_container.pack_start(desc_scrolled_window, expand=True, fill=True, padding=0)
-        add_box_container.pack_start(btn_box_container, expand=False, fill=True, padding=0)
+        grid.attach(title_label,          left=0, top=0, width=1, height=1)
+        grid.attach(title_entry,          left=1, top=0, width=3, height=1)
 
-        return add_box_container
+        grid.attach(category_label,       left=0, top=1, width=1, height=1)
+        grid.attach(category_combobox,    left=1, top=1, width=1, height=1)
+        grid.attach(organization_label,   left=2, top=1, width=1, height=1)
+        grid.attach(organization_entry,   left=3, top=1, width=1, height=1)
+
+        grid.attach(url_label,            left=0, top=2, width=1, height=1)
+        grid.attach(url_entry,            left=1, top=2, width=1, height=1)
+        grid.attach(note_label,           left=2, top=2, width=1, height=1)
+        grid.attach(note_combobox,        left=3, top=2, width=1, height=1)
+
+        grid.attach(pros_label,           left=0, top=3, width=2, height=1)
+        grid.attach(cons_label,           left=2, top=3, width=2, height=1)
+
+        grid.attach(pros_scrolled_window, left=0, top=4, width=2, height=1)
+        grid.attach(cons_scrolled_window, left=2, top=4, width=2, height=1)
+
+        grid.attach(desc_label,           left=0, top=5, width=4, height=1)
+
+        grid.attach(desc_scrolled_window, left=0, top=6, width=4, height=6)
+
+        grid.attach(add_button,           left=0, top=13, width=2, height=1)
+        grid.attach(cancel_button,        left=2, top=13, width=2, height=1)
+
+        return grid
 
 
     def add_job_advert_cb(self, widget):
