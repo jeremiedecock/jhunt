@@ -40,11 +40,12 @@ LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
 
 # CONFIG
 
-TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Category", "Organization", "Note", "Date", "Title"]
-JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Name", "Category", "Last visit", "Today status"]
+TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "Category", "Organization", "Score", "Date", "Title"]
+JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "Name", "Category", "Last visit", "Today status"]
 
 CATEGORY_LIST = ["Entrprise", "IR/IE", "PostDoc"]
-NOTE_LIST = ["0", "1", "2", "3", "4", "5"]
+
+DEFAULT_SCORE = 5
 
 # {"url": {"label": "", "category": ""}, ...}
 JOB_ADVERT_WEB_SITES = {
@@ -104,7 +105,7 @@ class MainWindow(gtk.Window):
         self.add_organization_entry = gtk.Entry()
         self.add_url_entry = gtk.Entry()
         self.add_title_entry = gtk.Entry()
-        self.add_note_combobox = gtk.ComboBoxText()
+        self.add_score_spin_button = gtk.SpinButton()
         self.add_pros_textview = gtk.TextView()
         self.add_cons_textview = gtk.TextView()
         self.add_desc_textview = gtk.TextView()
@@ -113,7 +114,7 @@ class MainWindow(gtk.Window):
                            "organization_widget": self.add_organization_entry,
                            "url_widget": self.add_url_entry,
                            "title_widget": self.add_title_entry,
-                           "note_widget": self.add_note_combobox,
+                           "score_widget": self.add_score_spin_button,
                            "pros_widget": self.add_pros_textview,
                            "cons_widget": self.add_cons_textview,
                            "desc_widget": self.add_desc_textview}
@@ -128,15 +129,16 @@ class MainWindow(gtk.Window):
         paned_container.set_position(400)
 
         # Creating the ListStore model
-        self.liststore = gtk.ListStore(str, str, str, int, str, str)
+        self.liststore = gtk.ListStore(str, str, str, str, int, str, str)
         for url, job_advert_dict in self.json_database["job_adverts"].items():
+            tooltip = url.replace('&', '&amp;')
             category = job_advert_dict["category"]
             organization = job_advert_dict["organization"]
-            note = int(job_advert_dict["note"])
+            score = job_advert_dict["score"]
             title = job_advert_dict["title"]
             date = job_advert_dict["date"]
 
-            self.liststore.append([url, category, organization, note, date, title])
+            self.liststore.append([url, tooltip, category, organization, score, date, title])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -152,25 +154,23 @@ class MainWindow(gtk.Window):
                 renderer.set_property("ellipsize", pango.EllipsizeMode.END)
                 renderer.set_property("ellipsize-set", True)
 
-            if column_title == "Url":
-                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltips and webbrowser redirection)
+            if column_title in ("Url", "Tooltip"):
+                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltip and webbrowser redirection)
 
-            if column_title == "Url":
-                column.set_sort_column_id(0)
-            elif column_title == "Category":
-                column.set_sort_column_id(1)
-            elif column_title == "Organization":
+            if column_title == "Category":
                 column.set_sort_column_id(2)
-            elif column_title == "Note":
+            elif column_title == "Organization":
                 column.set_sort_column_id(3)
-            elif column_title == "Date":
+            elif column_title == "Score":
                 column.set_sort_column_id(4)
-            elif column_title == "Title":
+            elif column_title == "Date":
                 column.set_sort_column_id(5)
+            elif column_title == "Title":
+                column.set_sort_column_id(6)
 
             treeview.append_column(column)
 
-        treeview.set_tooltip_column(0)  # set the tooltips
+        treeview.set_tooltip_column(1)  # set the tooltip
 
         # Connect to the "changed" signal (simple click)
         select = treeview.get_selection()
@@ -192,7 +192,7 @@ class MainWindow(gtk.Window):
         self.edit_url_entry = gtk.Entry()
         self.edit_url_entry.set_editable(False)
         self.edit_title_entry = gtk.Entry()
-        self.edit_note_combobox = gtk.ComboBoxText()
+        self.edit_score_spin_button = gtk.SpinButton()
         self.edit_pros_textview = gtk.TextView()
         self.edit_cons_textview = gtk.TextView()
         self.edit_desc_textview = gtk.TextView()
@@ -201,7 +201,7 @@ class MainWindow(gtk.Window):
                             "organization_widget": self.edit_organization_entry,
                             "url_widget": self.edit_url_entry,
                             "title_widget": self.edit_title_entry,
-                            "note_widget": self.edit_note_combobox,
+                            "score_widget": self.edit_score_spin_button,
                             "pros_widget": self.edit_pros_textview,
                             "cons_widget": self.edit_cons_textview,
                             "desc_widget": self.edit_desc_textview}
@@ -218,8 +218,9 @@ class MainWindow(gtk.Window):
         search_container.set_border_width(18)
 
         # Creating the ListStore model
-        self.job_search_liststore = gtk.ListStore(str, str, str, int, str)
+        self.job_search_liststore = gtk.ListStore(str, str, str, str, int, str)
         for url, web_site_dict in JOB_ADVERT_WEB_SITES.items():
+            tooltip = url.replace('&', '&amp;')
             label = web_site_dict["label"]
             category = web_site_dict["category"]
 
@@ -229,7 +230,7 @@ class MainWindow(gtk.Window):
             num_days_since_last_visit = 0
             today_status = "nc"
 
-            self.job_search_liststore.append([url, label, category, num_days_since_last_visit, today_status])
+            self.job_search_liststore.append([url, tooltip, label, category, num_days_since_last_visit, today_status])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -241,21 +242,21 @@ class MainWindow(gtk.Window):
 
             column.set_resizable(True)       # Let the column be resizable
 
-            if column_title == "Url":
-                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltips and webbrowser redirection)
+            if column_title in ("Url", "Tooltip"):
+                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltip and webbrowser redirection)
 
             if column_title == "Name":
-                column.set_sort_column_id(1)
-            elif column_title == "Category":
                 column.set_sort_column_id(2)
-            elif column_title == "Last visit":
+            elif column_title == "Category":
                 column.set_sort_column_id(3)
-            elif column_title == "Today status":
+            elif column_title == "Last visit":
                 column.set_sort_column_id(4)
+            elif column_title == "Today status":
+                column.set_sort_column_id(5)
 
             job_search_treeview.append_column(column)
 
-        job_search_treeview.set_tooltip_column(0)  # set the tooltips
+        job_search_treeview.set_tooltip_column(1)  # set the tooltip
 
         # Connect to the "row-activated" signal (double click)
         job_search_treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
@@ -294,13 +295,14 @@ class MainWindow(gtk.Window):
         organization_entry = widget_dict["organization_widget"]
         url_entry = widget_dict["url_widget"]
         title_entry = widget_dict["title_widget"]
-        note_combobox = widget_dict["note_widget"]
+        score_spin_button = widget_dict["score_widget"]
         pros_textview = widget_dict["pros_widget"]
         cons_textview = widget_dict["cons_widget"]
         desc_textview = widget_dict["desc_widget"]
 
         # Category
         category_label = gtk.Label(label="Category")
+
         category_combobox.set_entry_text_column(0)
         for category in CATEGORY_LIST:
             category_combobox.append_text(category)
@@ -315,13 +317,14 @@ class MainWindow(gtk.Window):
         # Title
         title_label = gtk.Label(label="Title")
 
-        # Note
-        note_label = gtk.Label(label="Note")
-        note_combobox.set_entry_text_column(0)
-        for note in NOTE_LIST:
-            note_combobox.append_text(note)
-        note_combobox.set_active(len(NOTE_LIST)-1)
-        #note_entry.set_max_length(1)
+        # Score
+        score_label = gtk.Label(label="Score")
+
+        score_spin_button.set_increments(step=1, page=5)
+        score_spin_button.set_range(min=0, max=5)
+        score_spin_button.set_value(5)
+        score_spin_button.set_numeric(True)
+        score_spin_button.set_update_policy(gtk.SpinButtonUpdatePolicy.IF_VALID)
 
         # Pros
         pros_label = gtk.Label(label="Pros")
@@ -379,7 +382,7 @@ class MainWindow(gtk.Window):
 
         url_entry.set_hexpand(True)
 
-        note_combobox.set_hexpand(True)
+        score_spin_button.set_hexpand(True)
 
         title_entry.set_hexpand(True)
 
@@ -397,7 +400,7 @@ class MainWindow(gtk.Window):
         category_label.set_halign(gtk.Align.END)
         organization_label.set_halign(gtk.Align.END)
         url_label.set_halign(gtk.Align.END)
-        note_label.set_halign(gtk.Align.END)
+        score_label.set_halign(gtk.Align.END)
         title_label.set_halign(gtk.Align.END)
 
         # Align labels to the left
@@ -417,8 +420,8 @@ class MainWindow(gtk.Window):
 
         grid.attach(url_label,            left=0, top=2, width=1, height=1)
         grid.attach(url_entry,            left=1, top=2, width=1, height=1)
-        grid.attach(note_label,           left=2, top=2, width=1, height=1)
-        grid.attach(note_combobox,        left=3, top=2, width=1, height=1)
+        grid.attach(score_label,          left=2, top=2, width=1, height=1)
+        grid.attach(score_spin_button,    left=3, top=2, width=1, height=1)
 
         grid.attach(pros_label,           left=0, top=3, width=2, height=1)
         grid.attach(cons_label,           left=2, top=3, width=2, height=1)
@@ -448,10 +451,11 @@ class MainWindow(gtk.Window):
         organization = self.add_organization_entry.get_text()
 
         url = self.add_url_entry.get_text()
+        tooltip = url.replace('&', '&amp;')
 
         title = self.add_title_entry.get_text()
 
-        note = self.add_note_combobox.get_active_text()
+        score = self.add_score_spin_button.get_value_as_int()
 
         pros_buffer = self.add_pros_textview.get_buffer()
         pros = pros_buffer.get_text(pros_buffer.get_start_iter(), pros_buffer.get_end_iter(), True)
@@ -476,14 +480,11 @@ class MainWindow(gtk.Window):
         elif url in self.json_database["job_adverts"]:
             error_msg_list.append("This job advert already exists in the database.")
 
-        if note is None:
-            error_msg_list.append("You must select a note.")
-        else:
-            try:
-                if int(note) not in range(6):
-                    error_msg_list.append("The note must be a number between 0 and 5.")
-            except:
-                error_msg_list.append("The note must be a number between 0 and 5.")
+        try:
+            if score not in range(6):
+                error_msg_list.append("The score must be a number between 0 and 5.")
+        except:
+            error_msg_list.append("The score must be a number between 0 and 5.")
 
         # Save data or display error ############
 
@@ -492,7 +493,7 @@ class MainWindow(gtk.Window):
                                "category": category,
                                "organization": organization,
                                "title": title,
-                               "note": note,
+                               "score": score,
                                "pros": pros,
                                "cons": cons,
                                "desc": desc}
@@ -505,7 +506,7 @@ class MainWindow(gtk.Window):
                 json.dump(self.json_database, fd, sort_keys=True, indent=4)
 
             # Update the GtkListStore (TODO: redundant with the previous JSON data structure)
-            self.liststore.append([url, category, organization, int(note), date, title])
+            self.liststore.append([url, tooltip, category, organization, score, date, title])
 
             # Clear all entries (except "category_entry")
             self.clear_job_adverts_add_form_cb()
@@ -525,7 +526,7 @@ class MainWindow(gtk.Window):
         self.add_url_entry.set_text("")
         #self.add_organization_entry.set_text("")
         self.add_title_entry.set_text("")
-        self.add_note_combobox.set_active(len(NOTE_LIST)-1)
+        self.add_score_spin_button.set_value(DEFAULT_SCORE)
         self.add_pros_textview.get_buffer().set_text("")
         self.add_cons_textview.get_buffer().set_text("")
         self.add_desc_textview.get_buffer().set_text("")
@@ -555,7 +556,7 @@ class MainWindow(gtk.Window):
             self.edit_url_entry.set_text("")
             #self.edit_category_combobox.set_active(...) # TODO!!!
             self.edit_organization_entry.set_text("")
-            #self.edit_note_combobox.set_active(len(NOTE_LIST)-1) # TODO!!!
+            self.edit_score_spin_button.set_value(0)
             self.edit_title_entry.set_text("")
             self.edit_pros_textview.get_buffer().set_text("")
             self.edit_cons_textview.get_buffer().set_text("")
@@ -563,7 +564,7 @@ class MainWindow(gtk.Window):
         else:
             category = self.json_database["job_adverts"][url]["category"]
             organization = self.json_database["job_adverts"][url]["organization"]
-            note = self.json_database["job_adverts"][url]["note"]
+            score = self.json_database["job_adverts"][url]["score"]
             title = self.json_database["job_adverts"][url]["title"]
             #date = self.json_database["job_adverts"][url]["date"]
             pros = self.json_database["job_adverts"][url]["pros"]
@@ -573,7 +574,7 @@ class MainWindow(gtk.Window):
             self.edit_url_entry.set_text(url)
             #self.edit_category_combobox.set_active(...) # TODO!!!
             self.edit_organization_entry.set_text(organization)
-            #self.edit_note_combobox.set_active(len(NOTE_LIST)-1) # TODO!!!
+            self.edit_score_spin_button.set_value(score)
             self.edit_title_entry.set_text(title)
             self.edit_pros_textview.get_buffer().set_text(pros)
             self.edit_cons_textview.get_buffer().set_text(cons)
