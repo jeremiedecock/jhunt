@@ -31,7 +31,7 @@ DEFAULT_SCORE = 5
 
 class AddAndEditContainer(gtk.Grid):
 
-    def __init__(self, main_window, json_database, json_filename, liststore, edit_mode=False, treeview=None):
+    def __init__(self, main_window, job_adverts_model, edit_mode=False, treeview=None):
         """
         ...
         """
@@ -39,11 +39,11 @@ class AddAndEditContainer(gtk.Grid):
         super(AddAndEditContainer, self).__init__()
 
         self.main_window = main_window
-        self.json_database = json_database
-        self.json_filename = json_filename
+        self.json_database = job_adverts_model.json_database
+        self.json_filename = job_adverts_model.get_json_filename()
+        self.liststore = job_adverts_model.liststore
 
         self.edit_mode = edit_mode
-        self.liststore = liststore
         self.treeview = treeview
 
         self.category_combobox = gtk.ComboBoxText()
@@ -266,7 +266,7 @@ class AddAndEditContainer(gtk.Grid):
 
             # Update the GtkListStore (TODO: redundant with the previous JSON data structure)
             if self.edit_mode:
-                model, treeiter = self.main_window.edit_job_advert_treeview.get_selection().get_selected()
+                model, treeiter = self.treeview.get_selection().get_selected()
                 self.liststore.set_value(treeiter, 2, category)      # category
                 self.liststore.set_value(treeiter, 3, organization)  # organization
                 self.liststore.set_value(treeiter, 4, score)         # score
