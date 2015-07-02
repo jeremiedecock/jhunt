@@ -142,7 +142,7 @@ class MainWindow(gtk.Window):
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
-        treeview = gtk.TreeView(self.liststore)
+        self.edit_job_advert_treeview = gtk.TreeView(self.liststore)
         for column_index, column_title in enumerate(TREE_VIEW_COLUMN_LABEL_LIST):
             renderer = gtk.CellRendererText()
 
@@ -168,23 +168,23 @@ class MainWindow(gtk.Window):
             elif column_title == "Title":
                 column.set_sort_column_id(6)
 
-            treeview.append_column(column)
+            self.edit_job_advert_treeview.append_column(column)
 
-        treeview.set_tooltip_column(1)  # set the tooltip
+        self.edit_job_advert_treeview.set_tooltip_column(1)  # set the tooltip
 
         # Connect to the "changed" signal (simple click)
-        select = treeview.get_selection()
+        select = self.edit_job_advert_treeview.get_selection()
         select.connect("changed", self.treeview_selection_changed_cb)
 
         # Connect to the "row-activated" signal (double click)
-        treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
+        self.edit_job_advert_treeview.connect("row-activated", self.adverts_src_treeview_double_click_cb)
 
         # Scrolled window
         scrolled_window = gtk.ScrolledWindow()
         scrolled_window.set_border_width(18)
         scrolled_window.set_shadow_type(gtk.ShadowType.IN)
         scrolled_window.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
-        scrolled_window.add(treeview)
+        scrolled_window.add(self.edit_job_advert_treeview)
 
         # Edit box container
         self.edit_category_combobox = gtk.ComboBoxText()
@@ -306,7 +306,7 @@ class MainWindow(gtk.Window):
         category_combobox.set_entry_text_column(0)
         for category in CATEGORY_LIST:
             category_combobox.append_text(category)
-        category_combobox.set_active(0)
+        category_combobox.set_active(-1)    # -1 = no active item selected
 
         # Organization
         organization_label = gtk.Label(label="Organization")
@@ -533,10 +533,7 @@ class MainWindow(gtk.Window):
 
 
     def treeview_selection_changed_cb(self, selection):
-        model, treeiter = selection.get_selected()
-        if treeiter != None:
-            url = self.liststore[treeiter][0]
-            self.reset_job_adverts_edit_form_cb(widget=None, url=url)
+        self.reset_job_adverts_edit_form_cb(widget=None)
 
 
     def edit_job_advert_cb(self, widget):
@@ -544,17 +541,29 @@ class MainWindow(gtk.Window):
         Save the current form.
         """
 
-        pass # TODO!!!
+        model, treeiter = self.edit_job_advert_treeview.get_selection().get_selected()
+        url = None
+        if treeiter != None:
+            url = self.liststore[treeiter][0]
+
+        if url is not None:
+            pass
+            # TODO!!!
 
 
-    def reset_job_adverts_edit_form_cb(self, widget=None, url=None):
+    def reset_job_adverts_edit_form_cb(self, widget=None, data=None):
         """
         Clear the current form: reset the entry widgets to their default value.
         """
 
+        model, treeiter = self.edit_job_advert_treeview.get_selection().get_selected()
+        url = None
+        if treeiter != None:
+            url = self.liststore[treeiter][0]
+
         if url is None:
             self.edit_url_entry.set_text("")
-            #self.edit_category_combobox.set_active(...) # TODO!!!
+            self.edit_category_combobox.set_active(-1) # -1 = no active item selected
             self.edit_organization_entry.set_text("")
             self.edit_score_spin_button.set_value(0)
             self.edit_title_entry.set_text("")
@@ -572,7 +581,7 @@ class MainWindow(gtk.Window):
             desc = self.json_database["job_adverts"][url]["desc"]
 
             self.edit_url_entry.set_text(url)
-            #self.edit_category_combobox.set_active(...) # TODO!!!
+            self.edit_category_combobox.set_active(CATEGORY_LIST.index(category))
             self.edit_organization_entry.set_text(organization)
             self.edit_score_spin_button.set_value(score)
             self.edit_title_entry.set_text(title)
