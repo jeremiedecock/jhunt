@@ -22,17 +22,10 @@
 
 from gi.repository import Gtk as gtk
 
+import json
 import webbrowser
 
-# {"url": {"label": "", "category": ""}, ...}
-JOB_ADVERT_WEB_SITES = {
-        "http://www.inria.fr/institut/recrutement-metiers/offres": {"label": "Inria", "category": "IR/IE"},
-        "https://flowers.inria.fr/jobs/":          {"label": "Inria - Flowers team", "category": "IR/IE"},
-        "http://www.ademe.fr/lademe-recrute":      {"label": "Ademe", "category": "IR/IE"},
-        "http://moorea.cea.fr/Web/ListeDoss.aspx": {"label": "CEA",   "category": "IR/IE"},
-        "https://jobs.github.com/positions":       {"label": "GitHub Jobs", "category": "Entrprise"},
-        "http://careers.stackoverflow.com/jobs":   {"label": "Stackoverflow Careers", "category": "Entrprise"}
-    }
+JSON_FILENAME = "job_adverts_web_sites.json"
 
 JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "Name", "Category", "Last visit", "Today status"]
 
@@ -45,6 +38,16 @@ class SearchContainer(gtk.Box):
         self.set_border_width(18)
 
         # Creating the ListStore model
+
+        # Load the JSON database
+        # {"url": {"label": "", "category": ""}, ...}
+        self.json_database = {}
+        try:
+            fd = open(JSON_FILENAME, "r")
+            self.json_database = json.load(fd)
+            fd.close()
+        except FileNotFoundError:
+            pass
 
         # TODO
         # {"url": [{"date": "", "status": ""}, ...], ...}
@@ -67,7 +70,7 @@ class SearchContainer(gtk.Box):
             }
 
         self.job_search_liststore = gtk.ListStore(str, str, str, str, int, str)
-        for url, web_site_dict in JOB_ADVERT_WEB_SITES.items():
+        for url, web_site_dict in self.json_database.items():
             tooltip = url.replace('&', '&amp;')
             label = web_site_dict["label"]
             category = web_site_dict["category"]

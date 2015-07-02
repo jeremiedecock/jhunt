@@ -36,7 +36,7 @@ class JobAdvertsModel(object):
             fd = open(JSON_FILENAME, "r")
             self.json_database = json.load(fd)
             fd.close()
-        except:
+        except FileNotFoundError:
             pass
 
         # Creating the gtk.ListStore model
