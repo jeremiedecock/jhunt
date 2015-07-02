@@ -20,7 +20,7 @@ Widgets
     - [ ] "Today status"
     - [ ] "Last visit"
     - [ ] Déplacer la liste des sites dans un fichier json
-    - [ ] Compléter la liste des sites
+    - [ ] Compléter la liste des sites: les "entreprises à contacter en priorité", EPST/EPIC, Postdoc
 - [ ] GtkTreeView: add filtering (from a search entry)
 
 ## Version 0.2

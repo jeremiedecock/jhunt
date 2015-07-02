@@ -29,6 +29,8 @@ JSON_FILENAME = "job_adverts_web_sites.json"
 
 JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "Name", "Category", "Last visit", "Today status"]
 
+TODAY_STATUS_LIST = ["None", "Partial", "Full"]
+
 class SearchContainer(gtk.Box):
 
     def __init__(self):
@@ -37,7 +39,6 @@ class SearchContainer(gtk.Box):
 
         self.set_border_width(18)
 
-        # Creating the ListStore model
 
         # Load the JSON database
         # {"url": {"label": "", "category": ""}, ...}
@@ -49,6 +50,12 @@ class SearchContainer(gtk.Box):
         except FileNotFoundError:
             pass
 
+        # Creating the Combo Status ListStore model
+        liststore_today_status = gtk.ListStore(str)
+        for item in TODAY_STATUS_LIST:
+            liststore_today_status.append([item])
+
+        # Creating the TreeView ListStore model
         # TODO
         # {"url": [{"date": "", "status": ""}, ...], ...}
         self.json_advert_src_database = {
@@ -69,7 +76,7 @@ class SearchContainer(gtk.Box):
                     ]
             }
 
-        self.job_search_liststore = gtk.ListStore(str, str, str, str, int, str)
+        self.liststore_job_search = gtk.ListStore(str, str, str, str, int, str)
         for url, web_site_dict in self.json_database.items():
             tooltip = url.replace('&', '&amp;')
             label = web_site_dict["label"]
@@ -79,15 +86,19 @@ class SearchContainer(gtk.Box):
             #status = int(self.json_advert_src_database[url].adverts_src_dict["status"])
             #today_status = self.json_advert_src_database[url][-1]["today_status"]
             num_days_since_last_visit = 0
-            today_status = "nc"
+            today_status = "None"
 
-            self.job_search_liststore.append([url, tooltip, label, category, num_days_since_last_visit, today_status])
+            self.liststore_job_search.append([url, tooltip, label, category, num_days_since_last_visit, today_status])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
-        job_search_treeview = gtk.TreeView(self.job_search_liststore)
+        job_search_treeview = gtk.TreeView(self.liststore_job_search)
+
         for column_index, column_title in enumerate(JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST):
-            renderer = gtk.CellRendererText()
+            if column_title == "Today status":
+                renderer = gtk.CellRendererCombo()
+            else:
+                renderer = gtk.CellRendererText()
 
             column = gtk.TreeViewColumn(column_title, renderer, text=column_index)
 
@@ -104,6 +115,16 @@ class SearchContainer(gtk.Box):
                 column.set_sort_column_id(4)
             elif column_title == "Today status":
                 column.set_sort_column_id(5)
+
+            if column_title == "Today status":
+                renderer.set_property("editable", True)
+                renderer.set_property("model", liststore_today_status)
+                renderer.set_property("text-column", 0)
+                renderer.set_property("has-entry", False)
+                renderer.connect("edited", self.on_combo_changed_cb)
+                #renderer.set_property('cell-background', 'red')
+                #renderer.set_property('cell-background', 'orange')
+                #renderer.set_property('cell-background', 'green')
 
             job_search_treeview.append_column(column)
 
@@ -123,6 +144,10 @@ class SearchContainer(gtk.Box):
         adverts_src_scrolled_window.add(job_search_treeview)
 
         self.pack_start(adverts_src_scrolled_window, expand=True, fill=True, padding=0)
+
+
+    def on_combo_changed_cb(self, widget, path, text):
+        self.liststore_job_search[path][5] = text
 
 
 def treeview_double_click_cb(tree_view, tree_path, tree_view_column):
