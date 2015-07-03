@@ -22,6 +22,7 @@
 
 from gi.repository import Gtk as gtk
 
+import datetime
 import json
 import webbrowser
 
@@ -33,12 +34,13 @@ TODAY_STATUS_LIST = ["None", "Partial", "Full"]
 
 class SearchContainer(gtk.Box):
 
-    def __init__(self):
+    def __init__(self, job_adverts_model):
 
         super(SearchContainer, self).__init__(orientation=gtk.Orientation.VERTICAL, spacing=6)
 
         self.set_border_width(18)
 
+        self.job_adverts_model = job_adverts_model
 
         # Load the JSON database
         # {"url": {"label": "", "category": ""}, ...}
@@ -56,25 +58,7 @@ class SearchContainer(gtk.Box):
             liststore_today_status.append([item])
 
         # Creating the TreeView ListStore model
-        # TODO
-        # {"url": [{"date": "", "status": ""}, ...], ...}
-        self.json_advert_src_database = {
-                "url1": [
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"}
-                    ],
-                "url2": [
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"}
-                    ],
-                "url3": [
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"},
-                        {"date": "", "status": "nc"}
-                    ]
-            }
+        # {"url": {"date": "status", ...}, ...}
 
         self.liststore_job_search = gtk.ListStore(str, str, str, str, int, str)
         for url, web_site_dict in self.json_database.items():
@@ -82,11 +66,18 @@ class SearchContainer(gtk.Box):
             label = web_site_dict["label"]
             category = web_site_dict["category"]
 
-            # self.json_advert_src_database.items()
-            #status = int(self.json_advert_src_database[url].adverts_src_dict["status"])
-            #today_status = self.json_advert_src_database[url][-1]["today_status"]
-            num_days_since_last_visit = 0
-            today_status = "None"
+            today = datetime.date.isoformat(datetime.date.today())
+
+            try:
+                today_status = self.job_adverts_model.json_database["job_searchs"][url][today]
+            except KeyError:
+                today_status = "None"
+
+            try:
+                # TODO: sort self.job_adverts_model.json_database["job_searchs"][url], get the last item, compute delta today - last_item
+                num_days_since_last_visit = 0
+            except KeyError:
+                num_days_since_last_visit = 0
 
             self.liststore_job_search.append([url, tooltip, label, category, num_days_since_last_visit, today_status])
 
@@ -147,7 +138,20 @@ class SearchContainer(gtk.Box):
 
 
     def on_combo_changed_cb(self, widget, path, text):
+        # Liststore
         self.liststore_job_search[path][5] = text
+
+        # Json
+        url = self.liststore_job_search[path][0]
+        today = datetime.date.isoformat(datetime.date.today())
+
+        if url not in self.job_adverts_model.json_database["job_searchs"]:
+            self.job_adverts_model.json_database["job_searchs"][url] = {}
+
+        self.job_adverts_model.json_database["job_searchs"][url][today] = text
+
+        # Save the JSON file
+        self.job_adverts_model.save_json_file()
 
 
 def treeview_double_click_cb(tree_view, tree_path, tree_view_column):

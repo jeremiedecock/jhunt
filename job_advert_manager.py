@@ -81,7 +81,7 @@ class MainWindow(gtk.Window):
 
         # Job search container ################################################
 
-        search_job_adverts_container = search_container.SearchContainer()
+        search_job_adverts_container = search_container.SearchContainer(self.job_adverts_model)
 
         # Stats container #####################################################
 

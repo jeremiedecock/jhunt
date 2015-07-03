@@ -39,6 +39,7 @@ class JobAdvertsModel(object):
         except FileNotFoundError:
             pass
 
+
         # Creating the gtk.ListStore model
         self.liststore = gtk.ListStore(str, str, str, str, int, str, str)
         for url, job_advert_dict in self.json_database["job_adverts"].items():
@@ -51,6 +52,13 @@ class JobAdvertsModel(object):
 
             self.liststore.append([url, tooltip, category, organization, score, date, title])
 
+
     def get_json_filename(self):
         return JSON_FILENAME
+
+
+    def save_json_file(self):
+        # Save the JSON file
+        with open(self.get_json_filename(), "w") as fd:
+            json.dump(self.json_database, fd, sort_keys=True, indent=4)
 

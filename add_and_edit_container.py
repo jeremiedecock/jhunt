@@ -39,9 +39,7 @@ class AddAndEditContainer(gtk.Grid):
         super(AddAndEditContainer, self).__init__()
 
         self.main_window = main_window
-        self.json_database = job_adverts_model.json_database
-        self.json_filename = job_adverts_model.get_json_filename()
-        self.liststore = job_adverts_model.liststore
+        self.job_adverts_model = job_adverts_model
 
         self.edit_mode = edit_mode
         self.treeview = treeview
@@ -223,7 +221,7 @@ class AddAndEditContainer(gtk.Grid):
         desc = desc_buffer.get_text(desc_buffer.get_start_iter(), desc_buffer.get_end_iter(), True)
 
         if self.edit_mode:
-            date = self.json_database["job_adverts"][url]["date"]
+            date = self.job_adverts_model.json_database["job_adverts"][url]["date"]
         else:
             date = datetime.date.isoformat(datetime.date.today())
 
@@ -236,7 +234,7 @@ class AddAndEditContainer(gtk.Grid):
 
         if len(url) == 0:
             error_msg_list.append("You must enter an url.")
-        elif url in self.json_database["job_adverts"] and not self.edit_mode:
+        elif url in self.job_adverts_model.json_database["job_adverts"] and not self.edit_mode:
             error_msg_list.append("This job advert already exists in the database.")
 
         try:
@@ -258,21 +256,20 @@ class AddAndEditContainer(gtk.Grid):
                                "desc": desc}
 
             # Save the job advert in the database
-            self.json_database["job_adverts"][url] = job_advert_dict
+            self.job_adverts_model.json_database["job_adverts"][url] = job_advert_dict
 
             # Save the job advert in the JSON file
-            with open(self.json_filename, "w") as fd:
-                json.dump(self.json_database, fd, sort_keys=True, indent=4)
+            self.job_adverts_model.save_json_file()
 
             # Update the GtkListStore (TODO: redundant with the previous JSON data structure)
             if self.edit_mode:
                 model, treeiter = self.treeview.get_selection().get_selected()
-                self.liststore.set_value(treeiter, 2, category)      # category
-                self.liststore.set_value(treeiter, 3, organization)  # organization
-                self.liststore.set_value(treeiter, 4, score)         # score
-                self.liststore.set_value(treeiter, 6, title)         # title
+                self.job_adverts_model.liststore.set_value(treeiter, 2, category)      # category
+                self.job_adverts_model.liststore.set_value(treeiter, 3, organization)  # organization
+                self.job_adverts_model.liststore.set_value(treeiter, 4, score)         # score
+                self.job_adverts_model.liststore.set_value(treeiter, 6, title)         # title
             else:
-                self.liststore.append([url, tooltip, category, organization, score, date, title])
+                self.job_adverts_model.liststore.append([url, tooltip, category, organization, score, date, title])
 
             # Clear all entries
             self.clearCallBack()
@@ -290,7 +287,7 @@ class AddAndEditContainer(gtk.Grid):
             model, treeiter = self.treeview.get_selection().get_selected()
             url = None
             if treeiter != None:
-                url = self.liststore[treeiter][0]
+                url = self.job_adverts_model.liststore[treeiter][0]
 
             if url is None:
                 self.url_entry.set_text("")
@@ -302,13 +299,13 @@ class AddAndEditContainer(gtk.Grid):
                 self.cons_textview.get_buffer().set_text("")
                 self.desc_textview.get_buffer().set_text("")
             else:
-                category = self.json_database["job_adverts"][url]["category"]
-                organization = self.json_database["job_adverts"][url]["organization"]
-                score = self.json_database["job_adverts"][url]["score"]
-                title = self.json_database["job_adverts"][url]["title"]
-                pros = self.json_database["job_adverts"][url]["pros"]
-                cons = self.json_database["job_adverts"][url]["cons"]
-                desc = self.json_database["job_adverts"][url]["desc"]
+                category = self.job_adverts_model.json_database["job_adverts"][url]["category"]
+                organization = self.job_adverts_model.json_database["job_adverts"][url]["organization"]
+                score = self.job_adverts_model.json_database["job_adverts"][url]["score"]
+                title = self.job_adverts_model.json_database["job_adverts"][url]["title"]
+                pros = self.job_adverts_model.json_database["job_adverts"][url]["pros"]
+                cons = self.job_adverts_model.json_database["job_adverts"][url]["cons"]
+                desc = self.job_adverts_model.json_database["job_adverts"][url]["desc"]
 
                 self.url_entry.set_text(url)
                 self.category_combobox.set_active(category_list.CATEGORY_LIST.index(category))
