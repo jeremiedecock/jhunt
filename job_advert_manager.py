@@ -34,6 +34,7 @@ import add_and_edit_container
 import job_adverts_model
 import job_adverts_view
 import search_container
+import stats_container
 
 LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
 
@@ -82,6 +83,10 @@ class MainWindow(gtk.Window):
 
         search_job_adverts_container = search_container.SearchContainer()
 
+        # Stats container #####################################################
+
+        stats_job_adverts_container = stats_container.StatsContainer(self.job_adverts_model)
+
         ###################################
 
         add_label = gtk.Label(label="Add")
@@ -92,6 +97,9 @@ class MainWindow(gtk.Window):
 
         search_label = gtk.Label(label="Search")
         notebook_container.append_page(search_job_adverts_container, search_label)
+
+        stats_label = gtk.Label(label="Stats")
+        notebook_container.append_page(stats_job_adverts_container, stats_label)
 
 
 def main():
