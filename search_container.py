@@ -74,25 +74,7 @@ class SearchContainer(gtk.Box):
             except KeyError:
                 today_status = "None"
 
-            try:
-                if len(self.job_adverts_model.json_database["job_searchs"][url]) > 0:
-                    # FULL
-                    filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val=='Full']
-                    last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
-                    last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
-                    num_days_since_last_full_visit = (today_datetime - last_datetime).days
-
-                    # PARTIAL
-                    filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val in ('Full', 'Partial')]
-                    last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
-                    last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
-                    num_days_since_last_partial_visit = (today_datetime - last_datetime).days
-
-                    num_days_since_last_visit_str = "{} - {}".format(num_days_since_last_full_visit, num_days_since_last_partial_visit)
-                else:
-                    num_days_since_last_visit_str = "-"
-            except KeyError:
-                num_days_since_last_visit_str = "-"
+            num_days_since_last_visit_str = self.set_last_visit_field_in_model(url)
 
             self.liststore_job_search.append([url, tooltip, label, category, num_days_since_last_visit_str, today_status])
 
@@ -122,6 +104,13 @@ class SearchContainer(gtk.Box):
             elif column_title == "Today status":
                 column.set_sort_column_id(5)
 
+            #if column_title == "Last visit":
+            #    if self.liststore_job_search[...][4] = "-"
+            #        renderer.set_property('cell-background', 'red')
+            #    elif self.liststore_job_search[...][4] = "-"
+            #        renderer.set_property('cell-background', 'green')
+            #    else:
+            #        renderer.set_property('cell-background', 'orange')
             if column_title == "Today status":
                 renderer.set_property("editable", True)
                 renderer.set_property("model", liststore_today_status)
@@ -167,6 +156,37 @@ class SearchContainer(gtk.Box):
 
         # Save the JSON file
         self.job_adverts_model.save_json_file()
+
+        # Update 'Last Visit' field in the model
+        num_days_since_last_visit_str = self.set_last_visit_field_in_model(url)
+        self.liststore_job_search[path][4] = num_days_since_last_visit_str
+
+
+    def set_last_visit_field_in_model(self, url):
+        today_datetime = datetime.datetime.today()
+        today_iso_str = datetime.date.isoformat(today_datetime)
+
+        try:
+            if len(self.job_adverts_model.json_database["job_searchs"][url]) > 0:
+                # FULL
+                filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val=='Full']
+                last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
+                last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
+                num_days_since_last_full_visit = (today_datetime - last_datetime).days
+
+                # PARTIAL
+                filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val in ('Full', 'Partial')]
+                last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
+                last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
+                num_days_since_last_partial_visit = (today_datetime - last_datetime).days
+
+                num_days_since_last_visit_str = "{} - {}".format(num_days_since_last_full_visit, num_days_since_last_partial_visit)
+            else:
+                num_days_since_last_visit_str = "-"
+        except KeyError:
+            num_days_since_last_visit_str = "-"
+
+        return num_days_since_last_visit_str
 
 
 def treeview_double_click_cb(tree_view, tree_path, tree_view_column):
