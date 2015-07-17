@@ -60,26 +60,41 @@ class SearchContainer(gtk.Box):
         # Creating the TreeView ListStore model
         # {"url": {"date": "status", ...}, ...}
 
-        self.liststore_job_search = gtk.ListStore(str, str, str, str, int, str)
+        self.liststore_job_search = gtk.ListStore(str, str, str, str, str, str)
         for url, web_site_dict in self.json_database.items():
             tooltip = url.replace('&', '&amp;')
             label = web_site_dict["label"]
             category = web_site_dict["category"]
 
-            today = datetime.date.isoformat(datetime.date.today())
+            today_datetime = datetime.datetime.today()
+            today_iso_str = datetime.date.isoformat(today_datetime)
 
             try:
-                today_status = self.job_adverts_model.json_database["job_searchs"][url][today]
+                today_status = self.job_adverts_model.json_database["job_searchs"][url][today_iso_str]
             except KeyError:
                 today_status = "None"
 
             try:
-                # TODO: sort self.job_adverts_model.json_database["job_searchs"][url], get the last item, compute delta today - last_item
-                num_days_since_last_visit = 0
-            except KeyError:
-                num_days_since_last_visit = 0
+                if len(self.job_adverts_model.json_database["job_searchs"][url]) > 0:
+                    # FULL
+                    filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val=='Full']
+                    last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
+                    last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
+                    num_days_since_last_full_visit = (today_datetime - last_datetime).days
 
-            self.liststore_job_search.append([url, tooltip, label, category, num_days_since_last_visit, today_status])
+                    # PARTIAL
+                    filtered_date_iso_str_list = [key for (key, val) in self.job_adverts_model.json_database["job_searchs"][url].items() if val in ('Full', 'Partial')]
+                    last_date_iso_str = sorted(filtered_date_iso_str_list)[-1]
+                    last_datetime = datetime.datetime.strptime(last_date_iso_str, "%Y-%m-%d")
+                    num_days_since_last_partial_visit = (today_datetime - last_datetime).days
+
+                    num_days_since_last_visit_str = "{} - {}".format(num_days_since_last_full_visit, num_days_since_last_partial_visit)
+                else:
+                    num_days_since_last_visit_str = "-"
+            except KeyError:
+                num_days_since_last_visit_str = "-"
+
+            self.liststore_job_search.append([url, tooltip, label, category, num_days_since_last_visit_str, today_status])
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
