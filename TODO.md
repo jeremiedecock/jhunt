@@ -15,12 +15,11 @@ Widgets
 - [x] Add a locking system to avoid multiple instanciation of the application (and data lose)...
 - [x] URL cliquable in Gtk.TreeView
 - [x] Add a feature: edit/save job adverts (use a Gtk.Paned container)
-- [ ] Add a feature: search job adverts pannel
-    - [ ] Snippets TreeView CellRenders
-    - [ ] "Today status"
-    - [ ] "Last visit"
-    - [ ] Déplacer la liste des sites dans un fichier json
-    - [ ] Compléter la liste des sites: les "entreprises à contacter en priorité", EPST/EPIC, Postdoc
+- [x] Add a feature: search job adverts pannel
+    - [x] Snippets TreeView CellRenders
+    - [x] "Today status"
+    - [x] "Last visit"
+    - [x] Déplacer la liste des sites dans un fichier json
 - [ ] GtkTreeView: add filtering (from a search entry)
 
 ## Version 0.2
@@ -42,6 +41,8 @@ Widgets
 
 - [ ] Add a README.md file
 - [ ] Add a Gtk.Menu and/or Toolbar (like a regular Gnome app)
+- [ ] Add a setup.py file and add the app to PyPI
+- [ ] Make a debian package
 
 ## Later ?
 
