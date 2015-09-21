@@ -72,3 +72,9 @@ class StatsContainer(gtk.Box):
         canvas = FigureCanvas(fig)
         scrolled_window.add_with_viewport(canvas)
 
+        # Label
+
+        num_job_adverts = len(job_adverts_model.json_database["job_adverts"])
+        label = gtk.Label(label="{} job adverts registred".format(num_job_adverts))
+        self.pack_start(label, expand=False, fill=False, padding=0)
+
