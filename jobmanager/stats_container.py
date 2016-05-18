@@ -29,7 +29,6 @@ from gi.repository import Gtk as gtk
 
 import datetime
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
