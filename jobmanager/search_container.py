@@ -22,11 +22,12 @@
 
 from gi.repository import Gtk as gtk
 
+import os
 import datetime
 import json
 import webbrowser
 
-JSON_FILENAME = "job_adverts_web_sites.json"
+JSON_FILENAME = "~/job_adverts_web_sites.json"
 
 JOB_SEARCH_TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "Name", "Category", "Last visit", "Today status"]
 
@@ -46,7 +47,7 @@ class SearchContainer(gtk.Box):
         # {"url": {"label": "", "category": ""}, ...}
         self.json_database = {}
         try:
-            fd = open(JSON_FILENAME, "r")
+            fd = open(os.path.expanduser(JSON_FILENAME), "r")
             self.json_database = json.load(fd)
             fd.close()
         except FileNotFoundError:

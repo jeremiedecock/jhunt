@@ -23,8 +23,9 @@
 from gi.repository import Gtk as gtk
 
 import json
+import os
 
-JSON_FILENAME = "job_adverts.json"
+JSON_FILENAME = "~/job_adverts.json"
 
 class JobAdvertsModel(object):
 
@@ -33,7 +34,7 @@ class JobAdvertsModel(object):
         # Load the JSON database
         self.json_database = {"job_adverts": {}, "job_searchs": {}}
         try:
-            fd = open(JSON_FILENAME, "r")
+            fd = open(os.path.expanduser(JSON_FILENAME), "r")
             self.json_database = json.load(fd)
             fd.close()
         except FileNotFoundError:
