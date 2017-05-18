@@ -34,7 +34,7 @@ class JobAdvertsModel(object):
         # Load the JSON database
         self.json_database = {"job_adverts": {}, "job_searchs": {}}
         try:
-            fd = open(os.path.expanduser(JSON_FILENAME), "r")
+            fd = open(self.get_json_filename(), "r")
             self.json_database = json.load(fd)
             fd.close()
         except FileNotFoundError:
@@ -55,7 +55,7 @@ class JobAdvertsModel(object):
 
 
     def get_json_filename(self):
-        return JSON_FILENAME
+        return os.path.expanduser(JSON_FILENAME)
 
 
     def save_json_file(self):
