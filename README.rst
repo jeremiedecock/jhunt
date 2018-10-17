@@ -26,8 +26,9 @@ Dependencies
 ============
 
 - Python >= 3.0
-- GTK+3 with Python 3 bindings
+- Qt5 for Python
 - Matplotlib
+- Pandas
 
 
 .. _install:
@@ -93,13 +94,14 @@ Or, if you have downloaded the JHunt source code::
 
     python3 setup.py install
 
-JHunt requires GTK+3 and its Python 3 bindings plus few additional
+JHunt requires Qt5 and its Python 3 bindings plus few additional
 libraries to run.
-These dependencies can be installed using MacPorts::
 
-    port install gtk3
-    port install py35-gobject3
-    port install py35-matplotlib
+.. These dependencies can be installed using MacPorts::
+.. 
+..     port install gtk3
+..     port install py35-gobject3
+..     port install py35-matplotlib
 
 .. or with Hombrew::
 .. 
@@ -121,6 +123,6 @@ License
 This project is provided under the terms and conditions of the
 `MIT License`_.
 
-
 .. _MIT License: http://opensource.org/licenses/MIT
 .. _JHunt: https://github.com/jeremiedecock/jhunt
+.. _command prompt: https://en.wikipedia.org/wiki/Cmd.exe
