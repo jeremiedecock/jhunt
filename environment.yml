@@ -1,0 +1,23 @@
+name: jhunt-dev
+channels:
+  - jdhp
+  - conda-forge
+dependencies:
+  - docutils
+  - pep8
+  - pytest
+  - pytest-cov
+  - setuptools
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinx-automodapi
+  - sphinxcontrib
+  - sphinxcontrib-websupport
+  - numpy
+  - pandas
+  - scipy
+  - scikit-image
+  - matplotlib
+  - requests
+  - pip:
+      - pytest_runner

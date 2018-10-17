@@ -107,3 +107,6 @@ ENV/
 
 # Windows Thumbnail files
 Thumbs.db
+
+# PyCharm
+.idea

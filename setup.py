@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Job Advert Manager
+# JHunt
 
 # The MIT License
 #
@@ -41,7 +41,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from jobmanager import __version__ as VERSION
+from jhunt import __version__ as VERSION
 
 # See :  http://pypi.python.org/pypi?%3Aaction=list_classifiers
 CLASSIFIERS = ['Development Status :: 4 - Beta',
@@ -52,7 +52,7 @@ CLASSIFIERS = ['Development Status :: 4 - Beta',
                'Topic :: Documentation']
 
 
-KEYWORDS = 'job advert manager'
+KEYWORDS = 'job hunter'
 
 
 # You can either specify manually the list of packages to include in the
@@ -60,7 +60,7 @@ KEYWORDS = 'job advert manager'
 # automatically with a recursive search (from the root directory of the
 # project).
 #PACKAGES = find_packages()
-PACKAGES = ['jobmanager']
+PACKAGES = ['jhunt']
 
 
 # The following list contains all dependencies that Python will try to
@@ -77,7 +77,7 @@ SCRIPTS = []
 #ENTRY_POINTS = {}
 ENTRY_POINTS = {
   'gui_scripts': [
-      'job-advert-manager = jobmanager.job_advert_manager:main',
+      'jhunt = jhunt.qt.main:main',
   ],
 }
 
@@ -95,7 +95,7 @@ setup(author='Jeremie DECOCK',
       maintainer='Jeremie DECOCK',
       maintainer_email='jd.jdhp@gmail.com',
 
-      name='job-advert-manager',
+      name='jhunt',
       description='A tool to manage job adverts for job seekers.',
       long_description=get_long_description(),
       url='http://www.jdhp.org/',
