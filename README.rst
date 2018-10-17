@@ -1,20 +1,20 @@
-=====================
-`Job Advert Manager`_
-=====================
+=================
+JHunt: Job Hunter
+=================
 
-Copyright (c) 2015,2016 Jeremie DECOCK (http://www.jdhp.org)
+Copyright (c) 2015-2018 Jeremie DECOCK (http://www.jdhp.org)
 
 
 * Web site: http://www.jdhp.org/projects_en.html
-* Source code: https://github.com/jeremiedecock/job-advert-manager
-* Issue tracker: https://github.com/jeremiedecock/job-advert-manager/issues
-* Job Advert Manager on PyPI: https://pypi.python.org/pypi/job-advert-manager
+* Source code: https://github.com/jeremiedecock/jhunt
+* Issue tracker: https://github.com/jeremiedecock/jhunt/issues
+* JHunt on PyPI: https://pypi.python.org/pypi/jhunt
 
 
 Description
 ===========
 
-`Job Advert Manager`_ is an open source tool to manage job adverts for job
+`JHunt`_ is an open source tool to manage job adverts for job
 seekers.
 
 Note:
@@ -38,20 +38,20 @@ Installation
 Gnu/Linux
 ---------
 
-You can install, upgrade, uninstall Job Advert Manager with these commands (in a
+You can install, upgrade, uninstall JHunt with these commands (in a
 terminal)::
 
-    pip install --pre job-advert-manager
-    pip install --upgrade job-advert-manager
-    pip uninstall job-advert-manager
+    pip install --pre jhunt
+    pip install --upgrade jhunt
+    pip uninstall jhunt
 
-Or, if you have downloaded the Job Advert Manager source code::
+Or, if you have downloaded the JHunt source code::
 
     python3 setup.py install
 
 .. There's also a package for Debian/Ubuntu::
 .. 
-..     sudo apt-get install job-advert-manager
+..     sudo apt-get install jhunt
 
 Windows
 -------
@@ -62,14 +62,14 @@ Windows
 ..     3.4 under Windows 7.
 ..     It should also work with recent Windows systems.
 
-You can install, upgrade, uninstall Job Advert Manager with these commands (in a
+You can install, upgrade, uninstall JHunt with these commands (in a
 `command prompt`_)::
 
-    py -m pip install --pre job-advert-manager
-    py -m pip install --upgrade job-advert-manager
-    py -m pip uninstall job-advert-manager
+    py -m pip install --pre jhunt
+    py -m pip install --upgrade jhunt
+    py -m pip uninstall jhunt
 
-Or, if you have downloaded the Job Advert Manager source code::
+Or, if you have downloaded the JHunt source code::
 
     py setup.py install
 
@@ -82,18 +82,18 @@ Note:
     3.5 under MacOSX 10.9 (*Mavericks*).
     It should also work with more recent MacOSX systems.
 
-You can install, upgrade, uninstall Job Advert Manager with these commands (in a
+You can install, upgrade, uninstall JHunt with these commands (in a
 terminal)::
 
-    pip install --pre job-advert-manager
-    pip install --upgrade job-advert-manager
-    pip uninstall job-advert-manager
+    pip install --pre jhunt
+    pip install --upgrade jhunt
+    pip uninstall jhunt
 
-Or, if you have downloaded the Job Advert Manager source code::
+Or, if you have downloaded the JHunt source code::
 
     python3 setup.py install
 
-Job Advert Manager requires GTK+3 and its Python 3 bindings plus few additional
+JHunt requires GTK+3 and its Python 3 bindings plus few additional
 libraries to run.
 These dependencies can be installed using MacPorts::
 
@@ -110,9 +110,9 @@ These dependencies can be installed using MacPorts::
 Bug reports
 ===========
 
-To search for bugs or report them, please use the Job Advert Manager Bug Tracker at:
+To search for bugs or report them, please use the JHunt Bug Tracker at:
 
-    https://github.com/jeremiedecock/job-advert-manager/issues
+    https://github.com/jeremiedecock/jhunt/issues
 
 
 License
@@ -123,4 +123,4 @@ This project is provided under the terms and conditions of the
 
 
 .. _MIT License: http://opensource.org/licenses/MIT
-.. _Job Advert Manager: https://github.com/jeremiedecock/job-advert-manager
+.. _JHunt: https://github.com/jeremiedecock/jhunt
