@@ -52,6 +52,9 @@ coverage.xml
 *,cover
 .hypothesis/
 
+# PyTest
+.pytest_cache/
+
 # Translations
 *.mo
 *.pot
@@ -88,6 +91,9 @@ celerybeat-schedule
 venv/
 ENV/
 
+# PyCharm project settings
+.idea/
+
 # Spyder project settings
 .spyderproject
 
@@ -107,6 +113,3 @@ ENV/
 
 # Windows Thumbnail files
 Thumbs.db
-
-# PyCharm
-.idea

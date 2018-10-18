@@ -5,7 +5,7 @@
 
 # The MIT License
 #
-# Copyright (c) 2015 Jeremie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2015-2018 Jeremie DECOCK (http://www.jdhp.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,19 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from jhunt import __version__ as VERSION
+
+# SETUP VARIABLES #############################################################
+
+from jhunt import get_version
+
+VERSION = get_version()
+
+AUTHOR_NAME = 'Jeremie DECOCK'
+AUTHOR_EMAIL = 'jd.jdhp@gmail.com'
+
+PYPI_PACKAGE_NAME = 'jhunt'
+PROJECT_SHORT_DESC = 'A tool to manage job adverts for job seekers'
+PROJECT_WEB_SITE_URL = 'https://github.com/jeremiedecock/jhunt'
 
 # See :  http://pypi.python.org/pypi?%3Aaction=list_classifiers
 CLASSIFIERS = ['Development Status :: 4 - Beta',
@@ -51,30 +63,37 @@ CLASSIFIERS = ['Development Status :: 4 - Beta',
                'Programming Language :: Python :: 3',
                'Topic :: Documentation']
 
-
 KEYWORDS = 'job hunter'
-
 
 # You can either specify manually the list of packages to include in the
 # distribution or use "setuptools.find_packages()" to include them
 # automatically with a recursive search (from the root directory of the
 # project).
-#PACKAGES = find_packages()
-PACKAGES = ['jhunt']
+PACKAGES = find_packages()
+#PACKAGES = ['jhunt']
 
 
 # The following list contains all dependencies that Python will try to
 # install with this project
-INSTALL_REQUIRES = []
+# E.g. INSTALL_REQUIRES = ['pyserial >= 2.6']
+INSTALL_REQUIRES = ['numpy >= 1.13.0',
+                    'pandas >= 0.22.0',
+                    'matplotlib >= 2.1.2']
 
 
+# E.g. SCRIPTS = ["examples/pyax12demo"]
 SCRIPTS = []
 
 
 # Entry point can be used to create plugins or to automatically generate
 # system commands to call specific functions.
 # Syntax: "name_of_the_command_to_make = package.module:function".
-#ENTRY_POINTS = {}
+# E.g.:
+#   ENTRY_POINTS = {
+#     'console_scripts': [
+#         'pyax12gui = pyax12.gui:run',
+#     ],
+#   }
 ENTRY_POINTS = {
   'gui_scripts': [
       'jhunt = jhunt.qt.main:main',
@@ -90,16 +109,18 @@ def get_long_description():
     return desc
 
 
-setup(author='Jeremie DECOCK',
-      author_email='jd.jdhp@gmail.com',
-      maintainer='Jeremie DECOCK',
-      maintainer_email='jd.jdhp@gmail.com',
+###############################################################################
 
-      name='jhunt',
-      description='A tool to manage job adverts for job seekers.',
+setup(author=AUTHOR_NAME,
+      author_email=AUTHOR_EMAIL,
+      maintainer=AUTHOR_NAME,
+      maintainer_email=AUTHOR_EMAIL,
+
+      name=PYPI_PACKAGE_NAME,
+      description=PROJECT_SHORT_DESC,
       long_description=get_long_description(),
-      url='http://www.jdhp.org/',
-      download_url='http://www.jdhp.org/',# Where the package can be downloaded
+      url=PROJECT_WEB_SITE_URL,
+      download_url=PROJECT_WEB_SITE_URL, # Where the package can be downloaded
 
       classifiers=CLASSIFIERS,
       #license='MIT',            # Useless if license is already in CLASSIFIERS
@@ -110,7 +131,7 @@ setup(author='Jeremie DECOCK',
 
       install_requires=INSTALL_REQUIRES,
       #platforms=['Linux'],
-      #requires=['pyserial'],
+      #requires=[],
 
       scripts=SCRIPTS,
       entry_points=ENTRY_POINTS,

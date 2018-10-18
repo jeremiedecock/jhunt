@@ -1,8 +1,8 @@
-# Job Advert Manager
+# JHunt - Job Hunter
 
 # The MIT License
 #
-# Copyright (c) 2015 Jeremie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2015-2018 Jeremie DECOCK (http://www.jdhp.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+"""Python Wavelet Imaging
+
+Note:
+
+    This project is in beta stage.
+
+Viewing documentation using IPython
+-----------------------------------
+To see which functions are available in `pywi`, type ``pywi.<TAB>`` (where
+``<TAB>`` refers to the TAB key), or use ``pywi.*transform*?<ENTER>`` (where
+``<ENTER>`` refers to the ENTER key) to narrow down the list.  To view the
+docstring for a function, use ``pywi.transform?<ENTER>`` (to view the
+docstring) and ``pywi.transform??<ENTER>`` (to view the source code).
+"""
+
 # PEP0440 compatible formatted version, see:
 # https://www.python.org/dev/peps/pep-0440/
 #
@@ -38,6 +53,7 @@
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '0.1.dev1'
+__version__ = '0.1.dev2'
 
-__all__ = ["qt", "io", "categories"]
+def get_version():
+    return __version__

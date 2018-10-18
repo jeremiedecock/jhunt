@@ -1,25 +1,28 @@
-=================
-JHunt: Job Hunter
-=================
+.. image:: https://travis-ci.org/jeremiedecock/jhunt.svg?branch=master
+    :target: https://travis-ci.org/jeremiedecock/jhunt
+
+==================
+JHunt - Job Hunter
+==================
 
 Copyright (c) 2015-2018 Jeremie DECOCK (http://www.jdhp.org)
-
 
 * Web site: http://www.jdhp.org/projects_en.html
 * Source code: https://github.com/jeremiedecock/jhunt
 * Issue tracker: https://github.com/jeremiedecock/jhunt/issues
 * JHunt on PyPI: https://pypi.python.org/pypi/jhunt
+* JHunt on Anaconda Cloud: https://anaconda.org/jdhp/jhunt
 
 
 Description
 ===========
 
-`JHunt`_ is an open source tool to manage job adverts for job
+JHunt is an open source tool to manage job adverts for job
 seekers.
 
-Note:
+.. warning::
 
-    This project is still in beta stage.
+    This project is in beta stage.
 
 
 Dependencies
