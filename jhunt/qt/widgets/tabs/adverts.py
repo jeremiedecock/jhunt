@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel
+from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel, QItemSelection, QItemSelectionModel
+from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QTableView, QWidget, QPushButton, QVBoxLayout, QAbstractItemView, \
     QAction, QHeaderView, QDataWidgetMapper, QPlainTextEdit, QSplitter, QLineEdit, QHBoxLayout
 
@@ -33,10 +34,7 @@ class AdvertsTab(QWidget):
         self.description_edit = QPlainTextEdit(parent=self.edition_group)
         self.btn_add_row = QPushButton("Add a row", parent=self.edition_group)
 
-        self.url_edit.setPlaceholderText("URL")
-        self.pros_edit.setPlaceholderText("Pros")
-        self.cons_edit.setPlaceholderText("Cons")
-        self.description_edit.setPlaceholderText("Description")
+        self.set_mapped_widgets_enabled(False)
 
         # Splitter ########################################
 
@@ -97,7 +95,7 @@ class AdvertsTab(QWidget):
         self.mapper.addMapping(self.pros_edit, pros_column_index)
         self.mapper.addMapping(self.cons_edit, cons_column_index)
         self.mapper.addMapping(self.description_edit, description_column_index)
-        self.mapper.toFirst()                      # TODO: is it a good idea ?
+        #self.mapper.toFirst()                      # TODO: is it a good idea ?
 
         self.table_view.selectionModel().selectionChanged.connect(self.update_selection)
 
@@ -139,18 +137,61 @@ class AdvertsTab(QWidget):
     def update_selection(self, selected, deselected):
         sm = self.table_view.selectionModel()
         index = sm.currentIndex()
-        #has_selection = sm.hasSelection()                       # TODO
+        has_selection = sm.hasSelection()
 
-        self.mapper.setCurrentIndex(index.row())                 # TODO: and when nothing is selected ???
+        if has_selection:
+            self.set_mapped_widgets_enabled(True)
+            self.mapper.setCurrentIndex(index.row())
+        else:
+            # When nothing is selected
+            self.set_mapped_widgets_enabled(False)
 
+    def set_mapped_widgets_enabled(self, enabled):
+        if enabled:
+            self.url_edit.setPlaceholderText("URL")
+            self.pros_edit.setPlaceholderText("Pros")
+            self.cons_edit.setPlaceholderText("Cons")
+            self.description_edit.setPlaceholderText("Description")
+
+            self.url_edit.setDisabled(False)
+            self.pros_edit.setDisabled(False)
+            self.cons_edit.setDisabled(False)
+            self.description_edit.setDisabled(False)
+        else:
+            self.url_edit.setText("")
+            self.pros_edit.setPlainText("")
+            self.cons_edit.setPlainText("")
+            self.description_edit.setPlainText("")
+
+            self.url_edit.setPlaceholderText("")
+            self.pros_edit.setPlaceholderText("")
+            self.cons_edit.setPlaceholderText("")
+            self.description_edit.setPlaceholderText("")
+
+            #p = self.description_edit.palette()
+            #p.setColor(QPalette.Disabled, QPalette.Base, Qt.lightGray)
+            #self.description_edit.setPalette(p)
+
+            #palette = self.url_edit.palette()
+            #self.pros_edit.setPalette(palette)
+            #self.cons_edit.setPalette(palette)
+            #self.description_edit.setPalette(palette)
+
+            self.url_edit.setDisabled(True)
+            self.pros_edit.setDisabled(True)
+            self.cons_edit.setDisabled(True)
+            self.description_edit.setDisabled(True)
 
     def add_row_btn_callback(self):
         parent = QModelIndex()                                   # More useful with e.g. tree structures
 
-        #row_index = 0                                           # Insert new rows to the begining
-        row_index = self.table_view.model().rowCount(parent)     # Insert new rows to the end
+        row_index = 0                                           # Insert new rows to the begining
+        #row_index = self.table_view.model().rowCount(parent)     # Insert new rows to the end
 
         self.table_view.model().insertRows(row_index, 1, parent)
+
+        #index = self.table_view.model().index(row_index, 0)    # TODO
+        #self.table_view.selectionModel().select(index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows)    # TODO
 
     def remove_row_callback(self):
         parent = QModelIndex()                                   # More useful with e.g. tree structures
