@@ -34,9 +34,12 @@ class PlotCanvas(FigureCanvas):
 
         try:
             x = data[:, self.date_column_index]
-            s = pd.Series(x)
+            dti = pd.DatetimeIndex(x)
+            s = pd.Series(np.ones(dti.shape), index=dti)
 
-            s.plot(ax=self.axes)         # TODO
+            s.resample('1d').count().plot.bar(color="blue", alpha=0.5, ax=self.axes)
+
+            #s.plot(ax=self.axes)         # TODO
             #s.groupby(s.time).count().plot(ax=self.axes)         # TODO
         except IndexError as e:
             # Happen when data is empty
@@ -47,18 +50,20 @@ class PlotCanvas(FigureCanvas):
     def update_figure(self):
         data = np.array(self.data._data)
 
+        self.axes.cla()
+
         try:
             x = data[:, self.date_column_index]
-            s = pd.Series(x)
+            dti = pd.DatetimeIndex(x)
+            s = pd.Series(np.ones(dti.shape), index=dti)
 
-            self.axes.cla()
+            s.resample('1d').count().plot.bar(color="blue", alpha=0.5, ax=self.axes)
 
-            s.plot(ax=self.axes)         # TODO
+            #s.plot(ax=self.axes)         # TODO
             #s.groupby(s.time).count().plot(ax=self.axes)         # TODO
             #self.axes.plot(x, y)
-
-            self.draw()
         except IndexError as e:
             # Happen when data is empty
             pass
 
+        self.draw()
