@@ -59,7 +59,7 @@ class AdvertsTable:
     @property
     def default_values(self):
         return (datetime.datetime.now(),
-                int(5),
+                int(0),
                 self.category_list[0],
                 "",
                 "",
