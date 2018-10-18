@@ -53,8 +53,8 @@ class AdvertsTab(QWidget):
         edition_group_hbox = QHBoxLayout()
         edition_group_vbox.addWidget(self.url_edit)
         edition_group_vbox.addLayout(edition_group_hbox)
-        edition_group_hbox.addWidget(self.pros_edit)
         edition_group_hbox.addWidget(self.cons_edit)
+        edition_group_hbox.addWidget(self.pros_edit)
         edition_group_vbox.addWidget(self.description_edit)
         edition_group_vbox.addWidget(self.btn_add_row)
         self.edition_group.setLayout(edition_group_vbox)
@@ -229,12 +229,12 @@ class AdvertsTab(QWidget):
 
     def open_web_page_callback(self):
         model_index_list = self.table_view.selectionModel().selectedRows()
-        #selected_row_list = [selection_index.row() for selection_index in selection_index_list]
 
         for model_index in model_index_list:
             row_index = model_index.row()
             column_index = self.url_column_index
 
+            # https://wiki.python.org/moin/PyQt/Reading%20selections%20from%20a%20selection%20model
             model_index = self.table_view.model().index(row_index, column_index)
             url = self.table_view.model().data(model_index, role=Qt.DisplayRole)
 
