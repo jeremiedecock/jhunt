@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import webbrowser
+
 from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QTableView, QWidget, QPushButton, QVBoxLayout, QAbstractItemView, \
@@ -16,10 +18,10 @@ class AdvertsTab(QWidget):
 
         self.tabs = parent
 
-        url_column_index = data.headers.index("URL")
-        pros_column_index = data.headers.index("Pros")
-        cons_column_index = data.headers.index("Cons")
-        description_column_index = data.headers.index("Description")
+        self.url_column_index = data.headers.index("URL")
+        self.pros_column_index = data.headers.index("Pros")
+        self.cons_column_index = data.headers.index("Cons")
+        self.description_column_index = data.headers.index("Description")
 
         # Make widgets ####################################
 
@@ -79,10 +81,10 @@ class AdvertsTab(QWidget):
 
         self.table_view.horizontalHeader().setStretchLastSection(True)  # http://doc.qt.io/qt-5/qheaderview.html#stretchLastSection-prop
 
-        self.table_view.setColumnHidden(url_column_index, True)
-        self.table_view.setColumnHidden(pros_column_index, True)
-        self.table_view.setColumnHidden(cons_column_index, True)
-        self.table_view.setColumnHidden(description_column_index, True)
+        self.table_view.setColumnHidden(self.url_column_index, True)
+        self.table_view.setColumnHidden(self.pros_column_index, True)
+        self.table_view.setColumnHidden(self.cons_column_index, True)
+        self.table_view.setColumnHidden(self.description_column_index, True)
 
         delegate = AdvertsTableDelegate(data)
         self.table_view.setItemDelegate(delegate)
@@ -91,10 +93,10 @@ class AdvertsTab(QWidget):
 
         self.mapper = QDataWidgetMapper()
         self.mapper.setModel(proxy_model)          # WARNING: do not use `adverts_model` here otherwise the index mapping will be wrong!
-        self.mapper.addMapping(self.url_edit, url_column_index)
-        self.mapper.addMapping(self.pros_edit, pros_column_index)
-        self.mapper.addMapping(self.cons_edit, cons_column_index)
-        self.mapper.addMapping(self.description_edit, description_column_index)
+        self.mapper.addMapping(self.url_edit, self.url_column_index)
+        self.mapper.addMapping(self.pros_edit, self.pros_column_index)
+        self.mapper.addMapping(self.cons_edit, self.cons_column_index)
+        self.mapper.addMapping(self.description_edit, self.description_column_index)
         #self.mapper.toFirst()                      # TODO: is it a good idea ?
 
         self.table_view.selectionModel().selectionChanged.connect(self.update_selection)
@@ -125,6 +127,14 @@ class AdvertsTab(QWidget):
 
         del_action.triggered.connect(self.remove_row_callback)
         self.table_view.addAction(del_action)
+
+        # Open web page action
+
+        open_action = QAction(self.table_view)
+        open_action.setShortcut(Qt.CTRL | Qt.Key_Space)
+
+        open_action.triggered.connect(self.open_web_page_callback)
+        self.table_view.addAction(open_action)
 
         # Set slots #######################################
 
@@ -216,4 +226,17 @@ class AdvertsTab(QWidget):
             success = self.table_view.model().removeRows(row_index, 1, parent)
             if not success:
                 raise Exception("Unknown error...")   # TODO
+
+    def open_web_page_callback(self):
+        model_index_list = self.table_view.selectionModel().selectedRows()
+        #selected_row_list = [selection_index.row() for selection_index in selection_index_list]
+
+        for model_index in model_index_list:
+            row_index = model_index.row()
+            column_index = self.url_column_index
+
+            model_index = self.table_view.model().index(row_index, column_index)
+            url = self.table_view.model().data(model_index, role=Qt.DisplayRole)
+
+            webbrowser.open_new_tab(url)
 
