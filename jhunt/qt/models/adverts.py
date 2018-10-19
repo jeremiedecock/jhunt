@@ -125,7 +125,7 @@ class AdvertsTableModel(QAbstractTableModel):
             self.beginInsertRows(parent, first_index, last_index)
 
             for i in range(count):
-                self._data.insert_empty_row(first_index)
+                self._data.insert_row(first_index)
 
             self.endInsertRows()
         except:

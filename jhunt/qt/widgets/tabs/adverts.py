@@ -18,6 +18,7 @@ class AdvertsTab(QWidget):
 
         self.tabs = parent
 
+        self.id_column_index = data.headers.index("ID")
         self.url_column_index = data.headers.index("URL")
         self.pros_column_index = data.headers.index("Pros")
         self.cons_column_index = data.headers.index("Cons")
@@ -81,6 +82,7 @@ class AdvertsTab(QWidget):
 
         self.table_view.horizontalHeader().setStretchLastSection(True)  # http://doc.qt.io/qt-5/qheaderview.html#stretchLastSection-prop
 
+        self.table_view.setColumnHidden(self.id_column_index, True)
         self.table_view.setColumnHidden(self.url_column_index, True)
         self.table_view.setColumnHidden(self.pros_column_index, True)
         self.table_view.setColumnHidden(self.cons_column_index, True)

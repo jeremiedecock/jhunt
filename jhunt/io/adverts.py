@@ -26,19 +26,20 @@ class AdvertsDataBase:
     def load(self):
         """Load the JSON database."""
 
-        json_data = []
+        json_data_dict = {}
 
         try:
             with open(self.path, "r") as fd:
-                json_data = json.load(fd)
+                json_data_dict = json.load(fd)
         except FileNotFoundError:
             pass
 
-        for row in json_data:
-            row[0] = datetime.datetime.strptime(row[0], PY_DATE_TIME_FORMAT)
-
         data = AdvertsTable()
-        for row in json_data:
+
+        date_index = data.headers.index("Date")
+
+        for key, row in json_data_dict.items():
+            row[date_index] = datetime.datetime.strptime(row[date_index], PY_DATE_TIME_FORMAT)
             data.append(row)
 
         return data
@@ -47,14 +48,20 @@ class AdvertsDataBase:
     def save(self, data):
         """Save the JSON database."""
 
-        json_data = copy.deepcopy(data._data)          # TODO !!! get each row from it's public interface
+        json_data_list = copy.deepcopy(data._data)          # TODO !!! get each row from it's public interface
 
-        for row in json_data:
-            row[0] = row[0].strftime(format=PY_DATE_TIME_FORMAT)
+        id_index = data.headers.index("ID")
+        date_index = data.headers.index("Date")
+
+        for row in json_data_list:
+            row[date_index] = row[date_index].strftime(format=PY_DATE_TIME_FORMAT)
+
+        # Use a dict structure to have items sorted by ID automatically by the JSON parser (for some strange reason, the first and the last items are switched when a list is used)
+        json_data_dict = {row[id_index]: row for row in json_data_list}
 
         with open(self.path, "w") as fd:
             #json.dump(json_data, fd)                           # no pretty print
-            json.dump(json_data, fd, sort_keys=True, indent=4)  # pretty print format
+            json.dump(json_data_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
 
     @property

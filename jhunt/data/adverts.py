@@ -7,6 +7,7 @@ class AdvertsTable:
 
     def __init__(self):
         self._data = []
+        self._last_id = 0
 
     # TODO: redefine [x,y] operator (as in numpy)
     def get_data(self, row_index, column_index):
@@ -16,17 +17,25 @@ class AdvertsTable:
     def set_data(self, row_index, column_index, value):
         if not isinstance(value, self.dtype[column_index]):
             raise ValueError("Expect {} instance. Got {}".format(type(self.dtype[column_index]), type(value)))
+
+        id_index = self.headers.index("ID")
+        if column_index == id_index:
+            self._last_id = max(self._last_id, value)
+
         self._data[row_index][column_index] = value
 
     def append(self, row):
         row_index = self.num_rows - 1
-        self.insert_empty_row(row_index)
+        self.insert_row(row_index, row=row)
+
+    def insert_row(self, row_index, row=None):
+        if row is None:
+            row = list(self.default_values)
+
+        self._data.insert(row_index, [None for i in range(self.num_columns)])
+
         for column_index in range(self.num_columns):
             self.set_data(row_index, column_index, row[column_index])
-
-    def insert_empty_row(self, index):
-        new_row = list(self.default_values)
-        self._data.insert(index, new_row)
 
     def remove_row(self, index):
         if self.num_rows > 0:
@@ -46,7 +55,8 @@ class AdvertsTable:
 
     @property
     def headers(self):
-        return ("Date",
+        return ("ID",
+                "Date",
                 "Score",
                 "Category",
                 "Organization",
@@ -58,7 +68,8 @@ class AdvertsTable:
 
     @property
     def default_values(self):
-        return (datetime.datetime.now(),
+        return (int(self._last_id + 1),
+                datetime.datetime.now(),
                 int(0),
                 self.category_list[0],
                 "",
@@ -70,7 +81,7 @@ class AdvertsTable:
 
     @property
     def dtype(self):
-        return (datetime.datetime, int, str, str, str, str, str, str, str)
+        return (int, datetime.datetime, int, str, str, str, str, str, str, str)
 
     @property
     def category_list(self):
