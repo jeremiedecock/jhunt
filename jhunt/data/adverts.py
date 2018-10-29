@@ -85,4 +85,4 @@ class AdvertsTable:
 
     @property
     def category_list(self):
-        return ("Entrprise", "IR/IE", "PostDoc")
+        return ("Entreprise", "IR/IE", "PostDoc")
