@@ -13,6 +13,8 @@ PY_DATE_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 FILE_NAME = ".jhunt_adverts"
 
+ID_COLUMN_LABEL = "ID"
+
 class AdvertsDataBase:
 
     def __init__(self):
@@ -26,6 +28,7 @@ class AdvertsDataBase:
     def load(self):
         """Load the JSON database."""
 
+
         json_data_dict = {}
 
         try:
@@ -36,11 +39,21 @@ class AdvertsDataBase:
 
         data = AdvertsTable()
 
-        date_index = data.headers.index("Date")
+        for advert_id, advert_dict in json_data_dict.items():
+            advert_list = []
 
-        for key, row in json_data_dict.items():
-            row[date_index] = datetime.datetime.strptime(row[date_index], PY_DATE_TIME_FORMAT)
-            data.append(row)
+            for col_label, dtype in zip(data.headers, data.dtype):
+                if col_label == ID_COLUMN_LABEL:
+                    value = int(advert_id)
+                else:
+                    value = advert_dict[col_label]
+
+                    if dtype == datetime.datetime:
+                        value = datetime.datetime.strptime(value, PY_DATE_TIME_FORMAT)
+
+                advert_list.append(value)
+
+            data.append(advert_list)
 
         return data
 
@@ -48,24 +61,29 @@ class AdvertsDataBase:
     def save(self, data):
         """Save the JSON database."""
 
-        json_data_list = copy.deepcopy(data._data)          # TODO !!! get each row from it's public interface
-
-        id_index = data.headers.index("ID")
-        date_index = data.headers.index("Date")
-
-        for row in json_data_list:
-            row[date_index] = row[date_index].strftime(format=PY_DATE_TIME_FORMAT)
-
         # Use a dict structure to have items sorted by ID automatically by the JSON parser (for some strange reason, the first and the last items are switched when a list is used)
-        json_data_dict = {row[id_index]: row for row in json_data_list}
+        json_data_dict = {}
+
+        for row_index in range(data.num_rows):
+            advert_dict = {}
+
+            for col_label, dtype, col_index in zip(data.headers, data.dtype, range(data.num_columns)):
+                value = data.get_data(row_index=row_index, column_index=col_index)
+
+                if dtype == datetime.datetime:
+                    value = value.strftime(format=PY_DATE_TIME_FORMAT)
+
+                advert_dict[col_label] = value
+
+            advert_id = advert_dict.pop(ID_COLUMN_LABEL)
+            json_data_dict[advert_id] = advert_dict
 
         with open(self.path, "w") as fd:
-            #json.dump(json_data, fd)                           # no pretty print
-            json.dump(json_data_dict, fd, sort_keys=True, indent=4)  # pretty print format
+            json.dump(json_data_dict, fd, sort_keys=True, indent=4)
 
 
     @property
     def path(self):
-        home_path = os.path.expanduser("~")                 # TODO: works on Unix only ?
+        home_path = os.path.expanduser("~")                 # TODO: does it work on Unix only ?
         file_path = os.path.join(home_path, FILE_NAME)
         return file_path
