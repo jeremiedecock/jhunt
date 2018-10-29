@@ -16,7 +16,7 @@ class AdvertsTable:
     # TODO: redefine [x,y] operator (as in numpy)
     def set_data(self, row_index, column_index, value):
         if not isinstance(value, self.dtype[column_index]):
-            raise ValueError("Expect {} instance. Got {}".format(type(self.dtype[column_index]), type(value)))
+            raise ValueError("Error at row {} column {} with value {}. Expect {} instance. Got {}".format(row_index, column_index, value, self.dtype[column_index], type(value)))
 
         id_index = self.headers.index("ID")
         if column_index == id_index:
