@@ -60,6 +60,7 @@ class AdvertsTable:
                 "Score",
                 "Category",
                 "Organization",
+                "Ref.",
                 "Title",
                 "URL",
                 "Pros",
@@ -77,11 +78,22 @@ class AdvertsTable:
                 "",
                 "",
                 "",
+                "",
                 "")
 
     @property
     def dtype(self):
-        return (int, datetime.datetime, int, str, str, str, str, str, str, str)
+        return (int,
+                datetime.datetime,
+                int,
+                str,
+                str,
+                str,
+                str,
+                str,
+                str,
+                str,
+                str)
 
     @property
     def category_list(self):
