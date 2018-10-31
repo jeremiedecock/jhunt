@@ -45,8 +45,8 @@ class AdvertsDataBase:
             for col_label, dtype in zip(data.headers, data.dtype):
                 if col_label == ID_COLUMN_LABEL:
                     value = int(advert_id)
-                #elif col_label == "Ref.":
-                #    value = ""
+                #elif col_label == "Application":
+                #    value = False
                 else:
                     value = advert_dict[col_label]
 
