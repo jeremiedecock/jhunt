@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import webbrowser
+import datetime
 
 from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel
 from PyQt5.QtWidgets import QTableView, QWidget, QPushButton, QVBoxLayout, QAbstractItemView, \
@@ -19,6 +20,7 @@ class WebsitesTab(QWidget):
 
         self.id_column_index = data.headers.index("ID")
         self.date_column_index = data.headers.index("Date")
+        self.last_visit_column_index = data.headers.index("Last visit")
         self.url_column_index = data.headers.index("URL")
         self.description_column_index = data.headers.index("Description")
 
@@ -211,11 +213,16 @@ class WebsitesTab(QWidget):
 
         for model_index in model_index_list:
             row_index = model_index.row()
-            column_index = self.url_column_index
+
+            # Open the URL in a browser
 
             # https://wiki.python.org/moin/PyQt/Reading%20selections%20from%20a%20selection%20model
-            model_index = self.table_view.model().index(row_index, column_index)
+            model_index = self.table_view.model().index(row_index, self.url_column_index)
             url = self.table_view.model().data(model_index, role=Qt.DisplayRole)
 
             webbrowser.open_new_tab(url)
 
+            # Update the 'last visit' field
+
+            model_index = self.table_view.model().index(row_index, self.last_visit_column_index)
+            self.table_view.model().setData(model_index, datetime.datetime.now(), role=Qt.EditRole)
