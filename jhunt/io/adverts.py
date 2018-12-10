@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import copy
 import datetime
 import json
 import os
@@ -27,7 +26,6 @@ class AdvertsDataBase:
 
     def load(self):
         """Load the JSON database."""
-
 
         json_data_dict = {}
 
