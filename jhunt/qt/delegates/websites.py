@@ -17,6 +17,7 @@ class WebsitesTableDelegate(QStyledItemDelegate):
         self.data = data
 
         self.date_column_index = data.headers.index("Date")
+        self.score_column_index = data.headers.index("Score")
         self.last_visit_column_index = data.headers.index("Last visit")
         self.category_column_index = data.headers.index("Category")
         self.status_column_index = data.headers.index("Today status")
@@ -33,6 +34,16 @@ class WebsitesTableDelegate(QStyledItemDelegate):
             # setFrame(): tell whether the line edit draws itself with a frame.
             # If enabled (the default) the line edit draws itself inside a frame, otherwise the line edit draws itself without any frame.
             editor.setFrame(False)
+
+            return editor
+        elif index.column() == self.score_column_index:
+            editor = QSpinBox(parent=parent)
+
+            # setFrame(): tell whether the line edit draws itself with a frame.
+            # If enabled (the default) the line edit draws itself inside a frame, otherwise the line edit draws itself without any frame.
+            editor.setFrame(False)
+
+            editor.setRange(0, 3)
 
             return editor
         elif index.column() == self.category_column_index:
@@ -62,6 +73,9 @@ class WebsitesTableDelegate(QStyledItemDelegate):
         if index.column() in (self.date_column_index, self.last_visit_column_index):
             value = index.model().data(index, Qt.EditRole)
             editor.setDateTime(value)     # value cannot be a string, it have to be a datetime...
+        elif index.column() == self.score_column_index:
+            value = int(index.model().data(index, Qt.EditRole))
+            editor.setValue(value)
         elif index.column() == self.category_column_index:
             value = index.model().data(index, Qt.EditRole)
             editor.setCurrentText(value)
@@ -77,6 +91,10 @@ class WebsitesTableDelegate(QStyledItemDelegate):
             str_value = editor.text()
             dt_value = datetime.datetime.strptime(str_value, PY_DATE_TIME_FORMAT)
             model.setData(index, dt_value, Qt.EditRole)
+        elif index.column() == self.score_column_index:
+            editor.interpretText()
+            value = editor.value()
+            model.setData(index, value, Qt.EditRole)
         elif index.column() == self.category_column_index:
             value = editor.currentText()
             model.setData(index, value, Qt.EditRole)
@@ -87,7 +105,7 @@ class WebsitesTableDelegate(QStyledItemDelegate):
             return QStyledItemDelegate.setModelData(self, editor, model, index)
 
     def updateEditorGeometry(self, editor, option, index):
-        if index.column() in (self.date_column_index, self.last_visit_column_index, self.category_column_index, self.status_column_index):
+        if index.column() in (self.date_column_index, self.score_column_index, self.last_visit_column_index, self.category_column_index, self.status_column_index):
             editor.setGeometry(option.rect)
         else:
             return QStyledItemDelegate.updateEditorGeometry(self, editor, option, index)

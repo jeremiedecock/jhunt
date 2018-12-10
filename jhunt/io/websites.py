@@ -43,8 +43,8 @@ class WebsitesDataBase:
             for col_label, dtype in zip(data.headers, data.dtype):
                 if col_label == ID_COLUMN_LABEL:
                     value = int(website_id)
-                #elif col_label == "Application":
-                #    value = False
+                #elif col_label == "Score":   # Temporary uncomment this line to introduce new fields in existing data
+                #    value = 0                # Temporary uncomment this line to introduce new fields in existing data
                 else:
                     value = website_dict[col_label]
 
