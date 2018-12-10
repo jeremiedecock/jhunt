@@ -62,6 +62,7 @@ class WebsitesTable:
                 "Category",
                 "Last visit",
                 "Today status",
+                "Description",
                 "URL")
 
     @property
@@ -73,6 +74,7 @@ class WebsitesTable:
                 self.category_list[0],
                 datetime.datetime.now(),
                 self.status_list[0],
+                "",
                 "")
 
     @property
@@ -83,6 +85,7 @@ class WebsitesTable:
                 int,
                 str,
                 datetime.datetime,
+                str,
                 str,
                 str)
 

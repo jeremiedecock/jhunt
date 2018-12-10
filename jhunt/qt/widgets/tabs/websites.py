@@ -5,7 +5,7 @@ import webbrowser
 
 from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel
 from PyQt5.QtWidgets import QTableView, QWidget, QPushButton, QVBoxLayout, QAbstractItemView, \
-    QAction
+    QAction, QSplitter, QLineEdit, QPlainTextEdit, QDataWidgetMapper
 
 from jhunt.qt.delegates.websites import WebsitesTableDelegate
 from jhunt.qt.models.websites import WebsitesTableModel
@@ -20,18 +20,37 @@ class WebsitesTab(QWidget):
         self.id_column_index = data.headers.index("ID")
         self.date_column_index = data.headers.index("Date")
         self.url_column_index = data.headers.index("URL")
+        self.description_column_index = data.headers.index("Description")
 
         # Make widgets ####################################
 
-        self.table_view = QTableView(parent=self)
-        self.btn_add_row = QPushButton("Add a row", parent=self)
+        self.splitter = QSplitter(orientation=Qt.Vertical, parent=self)
+
+        self.table_view = QTableView(parent=self.splitter)
+        self.edition_group = QWidget(parent=self.splitter)
+
+        self.url_edit = QLineEdit(parent=self.edition_group)
+        self.description_edit = QPlainTextEdit(parent=self.edition_group)
+        self.btn_add_row = QPushButton("Add a row", parent=self.edition_group)
+
+        self.set_mapped_widgets_enabled(False)
+
+        # Splitter ########################################
+
+        self.splitter.addWidget(self.table_view)
+        self.splitter.addWidget(self.edition_group)
 
         # Set layouts #####################################
 
         vbox = QVBoxLayout()
-        vbox.addWidget(self.table_view)
-        vbox.addWidget(self.btn_add_row)
+        vbox.addWidget(self.splitter)
         self.setLayout(vbox)
+
+        edition_group_vbox = QVBoxLayout()
+        edition_group_vbox.addWidget(self.url_edit)
+        edition_group_vbox.addWidget(self.description_edit)
+        edition_group_vbox.addWidget(self.btn_add_row)
+        self.edition_group.setLayout(edition_group_vbox)
 
         # Set model #######################################
 
@@ -57,9 +76,28 @@ class WebsitesTab(QWidget):
 
         self.table_view.setColumnHidden(self.id_column_index, True)
         self.table_view.setColumnHidden(self.date_column_index, True)
+        self.table_view.setColumnHidden(self.url_column_index, True)
+        self.table_view.setColumnHidden(self.description_column_index, True)
 
         delegate = WebsitesTableDelegate(data)
         self.table_view.setItemDelegate(delegate)
+
+        # Set QDataWidgetMapper ###########################
+
+        self.mapper = QDataWidgetMapper()
+        self.mapper.setModel(proxy_model)          # WARNING: do not use `adverts_model` here otherwise the index mapping will be wrong!
+        self.mapper.addMapping(self.url_edit, self.url_column_index)
+        self.mapper.addMapping(self.description_edit, self.description_column_index)
+        #self.mapper.toFirst()                      # TODO: is it a good idea ?
+
+        self.table_view.selectionModel().selectionChanged.connect(self.update_selection)
+
+        # TODO: http://doc.qt.io/qt-5/qdatawidgetmapper.html#setCurrentModelIndex
+        #self.table_view.selectionModel().currentRowChanged.connect(self.mapper.setCurrentModelIndex())
+
+        # TODO: https://doc-snapshots.qt.io/qtforpython/PySide2/QtWidgets/QDataWidgetMapper.html#PySide2.QtWidgets.PySide2.QtWidgets.QDataWidgetMapper.setCurrentModelIndex
+        #connect(myTableView.selectionModel(), SIGNAL("currentRowChanged(QModelIndex,QModelIndex)"),
+        #mapper, SLOT(setCurrentModelIndex(QModelIndex)))
 
         # Set key shortcut ################################
 
@@ -95,6 +133,43 @@ class WebsitesTab(QWidget):
         #self.btn_remove_row.clicked.connect(self.remove_row_callback)
 
         #self.table_view.setColumnHidden(1, True)
+
+
+    def update_selection(self, selected, deselected):
+        sm = self.table_view.selectionModel()
+        index = sm.currentIndex()
+        has_selection = sm.hasSelection()
+
+        if has_selection:
+            self.set_mapped_widgets_enabled(True)
+            self.mapper.setCurrentIndex(index.row())
+        else:
+            # When nothing is selected
+            self.set_mapped_widgets_enabled(False)
+
+    def set_mapped_widgets_enabled(self, enabled):
+        if enabled:
+            self.url_edit.setPlaceholderText("URL")
+            self.description_edit.setPlaceholderText("Description")
+
+            self.url_edit.setDisabled(False)
+            self.description_edit.setDisabled(False)
+        else:
+            self.url_edit.setText("")
+            self.description_edit.setPlainText("")
+
+            self.url_edit.setPlaceholderText("")
+            self.description_edit.setPlaceholderText("")
+
+            #p = self.description_edit.palette()
+            #p.setColor(QPalette.Disabled, QPalette.Base, Qt.lightGray)
+            #self.description_edit.setPalette(p)
+
+            #palette = self.url_edit.palette()
+            #self.description_edit.setPalette(palette)
+
+            self.url_edit.setDisabled(True)
+            self.description_edit.setDisabled(True)
 
     def add_row_btn_callback(self):
         parent = QModelIndex()                                   # More useful with e.g. tree structures

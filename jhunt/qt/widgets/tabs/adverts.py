@@ -3,10 +3,9 @@
 
 import webbrowser
 
-from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel, QItemSelection, QItemSelectionModel
-from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import Qt, QModelIndex, QSortFilterProxyModel
 from PyQt5.QtWidgets import QTableView, QWidget, QPushButton, QVBoxLayout, QAbstractItemView, \
-    QAction, QHeaderView, QDataWidgetMapper, QPlainTextEdit, QSplitter, QLineEdit, QHBoxLayout
+    QAction, QDataWidgetMapper, QPlainTextEdit, QSplitter, QLineEdit, QHBoxLayout
 
 from jhunt.qt.delegates.adverts import AdvertsTableDelegate
 from jhunt.qt.models.adverts import AdvertsTableModel
