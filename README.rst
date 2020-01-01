@@ -30,7 +30,6 @@ Dependencies
 
 - Python >= 3.0
 - Qt5 for Python
-- Matplotlib
 - Pandas
 
 

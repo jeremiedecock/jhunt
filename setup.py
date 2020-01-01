@@ -5,7 +5,7 @@
 
 # The MIT License
 #
-# Copyright (c) 2015-2018 Jeremie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2015-2020 Jeremie DECOCK (http://www.jdhp.org)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +78,7 @@ PACKAGES = find_packages()
 # E.g. INSTALL_REQUIRES = ['pyserial >= 2.6']
 INSTALL_REQUIRES = ['numpy >= 1.13.0',
                     'pandas >= 0.22.0',
-                    'matplotlib >= 2.1.2']
+                    'dve >= 1.0']
 
 
 # E.g. SCRIPTS = ["examples/pyax12demo"]

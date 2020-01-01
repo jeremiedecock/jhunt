@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Python Wavelet Imaging
+"""Job Hunter
 
 Note:
 
@@ -53,7 +53,7 @@ docstring) and ``pywi.transform??<ENTER>`` (to view the source code).
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '2.0'
+__version__ = '3.0.dev1'
 
 def get_version():
     return __version__

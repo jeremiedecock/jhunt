@@ -32,4 +32,5 @@ dependencies:
   - matplotlib
   - requests
   - pip:
+      - dve
       - pytest_runner
